@@ -1,0 +1,33 @@
+<div id="{$id}" class="{$class}" {$attr|raw}>
+    {notempty name="$rows"}
+    <div class="el-col-md-md-{$size[0]}" style="visibility: hidden;"></div>
+    <ul class="nav-step el-col-md-md-{$size[1]} {$class}">
+        {volist name="labels" id="label"}
+        <li class="nav-step-item {$label.active}">
+            {if condition="$mode eq 'anchor'"}
+            <a data-toggle="tab" href="#{$id}-{$key}">
+                <h6>{$label.content|raw}</h6>
+                <p class="m-0">{$label.description|raw|default=$label.content|raw}</p>
+            </a>
+            {else/}
+            <span>{$label.content|raw}</span>
+            <a data-toggle="tab" href="#{$id}-{$key}"></a>
+            {/if}
+        </li>
+        {/volist}
+    </ul>
+    <div class="nav-step-content">
+        {volist name="rows" id="row"}
+        <div class="nav-step-pane hidden {$row.active}" id="{$id}-{$key}">
+            {:$row.content->render()}
+        </div>
+        {/volist}
+    </div>
+    <div class="el-col-md-md-5" style="visibility: hidden;"></div>
+    <div class="nav-step-button el-col-md-md-2">
+        <button class="btn btn-secondary disabled" data-wizard="prev" type="button">上一步</button>
+        <button class="btn btn-secondary" data-wizard="next" type="button">下一步</button>
+        <button class="btn btn-primary hidden" data-wizard="finish" type="submit">完&nbsp;&nbsp;成</button>
+    </div>
+    {/notempty}
+</div>

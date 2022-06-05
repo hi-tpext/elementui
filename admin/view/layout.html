@@ -16,31 +16,24 @@
   <!--stylesheets-->
   {/block}
   <style>
-    .lyear-layout-content {
-      padding-left: 0;
-      padding-top: 0;
-    }
-
-    .lyear-layout-content .container-fluid {
+    .page-content {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
       height: 100%;
+      position: relative;
       padding-left: 8px;
       padding-right: 8px;
-      padding-top: 5px;
-    }
-
-    .container-fluid .content {
-      min-height: 100%;
-      margin-bottom: 0;
+      box-sizing: border-box;
+      background-color: #fff;
     }
   </style>
 </head>
 
 <body>
   <!--页面主要内容-->
-  <main class="lyear-layout-content">
-    <div class="container-fluid">
-      {block name="content"}{/block}
-    </div>
+  <main class="page-content">
+    {block name="content"}{/block}
   </main>
   <!--End 页面主要内容-->
   {notempty name="$admin_js"}

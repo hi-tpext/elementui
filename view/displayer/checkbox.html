@@ -1,0 +1,26 @@
+{include file="$labeltempl" /}
+<div class="el-form-item__content el-col-md-{$size[1]} checkbox-div" id="{$id}">
+    {if condition="!$blockStyle && $checkallBtn"}
+    <el-checkbox {$attr|raw} class="{$class}" :indeterminate="{$vueFieldName}.indeterminate" v-model="{$vueFieldName}.checkAll"
+        @change="{$vueEventName}CheckAllChange">{$checkallBtn|raw}</el-checkbox>
+    {/if}
+    <el-checkbox-group {$attr|raw} size="mini" class="{$class}" v-model="{$vueFieldName}.value"
+        @change="{$vueEventName}CheckedChange">
+        {if condition="$blockStyle"}
+        <template v-for="item in {$vueFieldName}.options">
+            <el-checkbox-button class="{$class}" :disabled="item.disabled" :label="item.key">
+                {{item.label}}
+            </el-checkbox-button>
+        </template>
+        {else}
+        <template v-for="item in {$vueFieldName}.options">
+            <el-checkbox class="{$class}" :disabled="item.disabled" :label="item.key">{{item.label}}
+            </el-checkbox>
+            {if condition="!$inline"}
+            <div style="height: 1px;width:100%"></div>
+            {/if}
+        </template>
+        {/if}
+    </el-checkbox-group>
+    {include file="$helptempl" /}
+</div>

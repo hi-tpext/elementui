@@ -1,0 +1,159 @@
+<div id="{$id}" class="form-wrapper">
+    <form action="{$action}" method="{$method|default='POST'}" enctype="application/x-www-form-urlencoded" class="{$class}"
+        {$attr|raw}>
+
+        {volist name="rows" id="row"}
+        {if condition="$row instanceof tpext\builder\common\Tab"}
+        <div class="el-col-24">
+            {:$row->render()}
+        </div>
+        {elseif condition="$row instanceof tpext\builder\form\step"}
+        <div class="el-col-24">
+            {:$row->render()}
+        </div>
+        {else/}
+        <div class="el-form-item--small el-col-md-{$row->getColSizeClass()} {$row->getClass()} row-{$row->getName()}-div
+            {$row->getErrorClass()}" {$row->getAttrWithStyle()|raw}>
+            {:$row->render()}
+        </div>
+        {/if}
+        {/volist}
+        <div class="el-col-24">
+            <div id="help-block" class="has-error text-center">
+                <label style="font-size: 12px;" class="error-label control-label">&nbsp;</label>
+            </div>
+        </div>
+        <input type="hidden" name="__token__" value="{$__token__}" />
+    </form>
+    <script>
+        if (!window.__forms__) {
+            window.__forms__ = [];
+        }
+
+        window.__forms__['{$id}'] = {
+            ajax: '{$ajax}' == '1',
+            action: '{$action}',
+            formSubmit: function () {
+                lightyear.loading('hide');
+                var that = this;
+                if (that.ajax) {
+                    lightyear.loading('show');
+
+                    var postdata = $('#{$id} form').serialize();
+
+                    $.ajax({
+                        url: '{$action}' || location.href,
+                        data: postdata,
+                        type: "{$method|default='POST'}",
+                        dataType: 'json',
+                        success: function (data) {
+                            setTimeout(function () {
+                                lightyear.loading('hide');
+                            }, 500);
+                            if (data.status || data.code) {
+                                if (data.layer_close) {
+                                    that.closeLayer(data.msg || data.message || '操作成功！', 'success');
+                                } else if (data.layer_close_refresh) {
+                                    that.closeLayerRefresh(data.msg || data.message || '操作成功！', 'success');
+                                } else if (data.layer_close_go) {
+                                    that.closeLayerGo(data.msg || data.message || '操作成功！', data
+                                        .layer_close_go, 'success');
+                                }
+                                else if (data.url) {
+                                    lightyear.notify(data.msg || data.message || '操作成功！', 'success');
+                                    setTimeout(function () {
+                                        location.replace(data.url);
+                                    }, data.wait * 1000 || 2000);
+                                }
+                                else {
+                                    lightyear.notify(data.msg || data.message || '操作成功！',
+                                        'success');
+                                }
+                            } else {
+                                if (data.layer_close) {
+                                    that.closeLayer(data.msg || data.message || '操作失败！', 'danger');
+                                } else if (data.layer_close_refresh) {
+                                    that.closeLayerRefresh(data.msg || data.message || '操作失败！', 'danger');
+                                } else if (data.layer_close_go) {
+                                    that.closeLayerGo(data.msg || data.message || '操作失败！', data
+                                        .layer_close_go, 'danger');
+                                }
+                                else if (data.url) {
+                                    lightyear.notify(data.msg || data.message || '操作失败', 'danger');
+                                    setTimeout(function () {
+                                        location.replace(data.url);
+                                    }, data.wait * 1000 || 2000);
+                                }
+                                else {
+                                    lightyear.notify(data.msg || data.message || '操作失败', 'danger');
+                                }
+                            }
+                            if (data.script || (data.data && data.data.script)) {
+                                var script = data.script || data.data.script;
+                                if ($('#script-div').size()) {
+                                    $('#script-div').html(script);
+                                } else {
+                                    $('body').append(
+                                        '<div class="hidden" id="script-div">' + script + '</div>');
+                                }
+                            }
+                        },
+                        error: function () {
+                            lightyear.loading('hide');
+                            lightyear.notify('网络错误', 'danger');
+                        }
+                    });
+
+                    return false;
+                }
+
+                lightyear.loading('show');
+
+                setTimeout(function(){
+                    lightyear.loading('hide');
+                }, 10000);
+
+                return true;
+            },
+            closeLayer: function (msg, style) {
+                if (parent) {
+                    parent.lightyear.notify(msg, style);
+                    if (parent.layer) {
+                        var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+                        parent.layer.close(index);
+                    }
+                } else {
+                    lightyear.notify(msg, style);
+                }
+            },
+            closeLayerRefresh: function (msg, style) {
+                if (parent) {
+                    parent.lightyear.notify(msg, style);
+                    if (parent.$('.search-refresh').size()) {
+                        parent.$('.search-refresh').trigger('click');
+                    } else {
+                        parent.location.reload();
+                    }
+                    if (parent.layer) {
+                        var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+                        parent.layer.close(index);
+                    }
+                } else {
+                    lightyear.notify(msg, style);
+                }
+            },
+            closeLayerGo: function (msg, url, style) {
+                if (parent) {
+                    parent.lightyear.notify(msg, style);
+                    if (parent.layer) {
+                        parent.location.replace(url);
+                        var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+                        parent.layer.close(index);
+                    }
+                } else {
+                    lightyear.notify(msg, style);
+                }
+            }
+        };
+    </script>
+</div>

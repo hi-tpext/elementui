@@ -1,3 +1,28 @@
+function getThemes() {
+    return [
+        {
+            label: "钴蓝",
+            name: "blue",
+            color: "#4165d7"
+        },
+        {
+            label: "极黑",
+            name: "black",
+            color: "#2f3447"
+        },
+        {
+            label: "果绿",
+            name: "green",
+            color: "#51C21A"
+        },
+        {
+            label: "酱紫",
+            name: "purple",
+            color: "#d0378d"
+        }
+    ];
+}
+
 function getBrowser() {
     var clientHeight = document.documentElement.clientHeight, clientWidth = document.documentElement.clientWidth;
 
@@ -99,6 +124,32 @@ function getBrowser() {
         isPC,
         isMini,
         screen
+    };
+}
+
+function getSubMenu(treeObj) {
+    var topMenu = [];
+    var leftMenu = [];
+
+    for (var i in treeObj) {
+        var children = treeObj[i].children;
+        if (!children || !children.length) {
+            if (treeObj[i].url && treeObj[i].url != '#') {
+                children = [treeObj[i]];
+            }
+        }
+        if (children.length) {
+            leftMenu = leftMenu.concat(children);
+        }
+        if (!treeObj[i].is_home) {
+            delete treeObj[i].children;
+            topMenu.push(treeObj[i]);
+        }
+    }
+
+    return {
+        left: leftMenu,
+        top: topMenu,
     };
 }
 

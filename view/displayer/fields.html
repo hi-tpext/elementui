@@ -1,0 +1,7 @@
+{include file="$labeltempl" /}
+<div class="el-form-item__content el-col-md-{$size[1]} fields-div">
+    <div class="{$class} fields-content" {$attr|raw}>
+        {:$fields_content->render()}
+    </div>
+    {include file="$helptempl" /}
+</div>

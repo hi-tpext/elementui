@@ -1,0 +1,140 @@
+{notempty name="searchForm"}
+{:$searchForm->render()}
+{/notempty}
+{notempty name="toolbar"}
+<div class="toolbar-wrapper">
+    {:$toolbar->render()}
+</div>
+{/notempty}
+
+<div id="{$id}">
+    {notempty name="addTop"}
+    {:$addTop->render()}
+    {/notempty}
+    <div class="table-wrapper">
+        <table class="table {$class}" {$attr|raw}>
+            {notempty name="$headers"}
+            <thead>
+                <tr>
+                    {if condition="$useCheckbox"}
+                    <th class="table-checkbox">
+                        <label class="lyear-checkbox checkbox-primary">
+                            <input type="checkbox" id="checkall-{$name}" data-check="check-{$name}" class="checkall
+                                table-row-checkall"><span></span>
+                        </label>
+                    </th>
+                    {/if}
+                    {volist name="headers" id="header"}
+                    <th class="{$headTextAlign}">
+                        {$header|raw}
+                        {in name="$key" value="$sortable"}
+                        {if condition="$key eq $sortKey"}
+                        {if condition="$sortOrder eq 'asc'"}
+                        <a data-key="{$key}" href="javascript:;" class="sortable mdi mdi-sort-ascending"></a>
+                        {else/}
+                        <a data-key="{$key}" href="javascript:;" class="sortable mdi mdi-sort-descending"></a>
+                        {/if}
+                        {else/}
+                        <a data-key="{$key}" href="javascript:;" class="sortable mdi mdi-sort"></a>
+                        {/if}
+                        {/in}
+                    </th>
+                    {/volist}
+                    {notempty name="$actionbars"}
+                    <th class="{$headTextAlign}">{$actionRowText|raw}</th>
+                    {/notempty}
+                </tr>
+            </thead>
+            {/notempty}
+            <tbody>
+                {volist name="list" id="row"}
+                <tr class="table-row-id" data-id="{$ids[$key]}">
+                    {if condition="$useCheckbox"}
+                    <td class="table-checkbox {$tdClass}">
+                        <label class="lyear-checkbox checkbox-primary">
+                            <input type="checkbox" id="{$name}-{$key}" value="{$ids[$key]}" {in name="$ids[$key]"
+                                value="$checked" }checked{/in} class="check-{$name} table-row"><span></span>
+                        </label>
+                    </td>
+                    {/if}
+                    {foreach name="row" id="col" key="co"}
+                    <td class="{$tdClass} {$col.wrapper->getClass()} row-{$col.wrapper->getName()}-td"
+                        {$col.wrapper->getAttrWithStyle()|raw}>
+                        {$col.value|raw}
+                    </td>
+                    {/foreach}
+                    {notempty name="$actionbars"}
+                    <td class="text-center row-__action__ {$verticalAlign}">
+                        {$actionbars[$key]|raw}
+                    </td>
+                    {/notempty}
+                </tr>
+                {/volist}
+            </tbody>
+        </table>
+    </div>
+    {empty name="$list"}
+    <div class="table-empty-text">
+        {$emptyText|raw}
+    </div>
+    {/empty}
+    {notempty name="paginator"}
+    <nav class="pagination-navi {:$paginator->getClass()}" {:$paginator->getAttrWithStyle()}>
+        {:$paginator->render()}{notempty name="pagesizeDropdown"}{:$pagesizeDropdown->render()}{/notempty}
+    </nav>
+    {/notempty}
+    {notempty name="addBottom"}
+    {:$addBottom->render()}
+    {/notempty}
+    <script>
+        var partial = '{$partial}' == 1;
+
+        document.getElementById('form-__sort__-{$id}').value = '{$sort}';
+
+        if (partial) {
+            $('#form-__page__-{$id}').val('{$paginator->currentPage()}');
+
+            var checkall = $('#{$id} input.checkall');
+            var checkboxes = $('.' + checkall.data('check'));
+            var count = checkboxes.size();
+
+            checkall.on('change', function () {
+                var ischecked = checkall.is(':checked');
+                checkboxes.each(function (ii, ee) {
+                    if ($(ee).attr('disabled') !== undefined || $(ee).attr('readonly') !== undefined) {
+                        return;
+                    }
+                    $(ee).prop('checked', ischecked).trigger('change');
+                });
+            });
+
+            checkboxes.on('change', function () {
+                var ss = 0;
+                checkboxes.each(function (ii, ee) {
+                    if ($(ee).is(':checked')) {
+                        ss += 1;
+                        $(ee).parentsUntil('tbody', 'tr').addClass('checked');
+                    }
+                    else {
+                        $(ee).parentsUntil('tbody', 'tr').removeClass('checked');
+                    }
+                });
+                checkall.prop('checked', ss == count);
+            });
+
+            $('#{$id} input.table-row-checkall').trigger('change');
+            if (window.renderFiles) {
+                window.renderFiles('#{$id} ');
+            }
+            $("#{$id} table .form-control.readonly").attr('readonly', 'readonly');
+            $("#{$id} table .form-control.disabled").attr('disabled', 'disabled');
+            $("#{$id} table .form-control.not-readonly").removeAttr('readonly');
+            $("#{$id} table .form-control.not-disabled").removeAttr('disabled');
+
+            $("#{$id} table label.readonly input").attr('readonly', 'readonly');
+            $("#{$id} table label.disabled input").attr('disabled', 'disabled');
+            $("#{$id} table label.not-readonly input").removeAttr('readonly');
+            $("#{$id} table label.not-disabled input").removeAttr('disabled');
+        }
+    </script>
+</div>

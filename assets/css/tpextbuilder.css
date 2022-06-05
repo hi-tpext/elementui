@@ -1,0 +1,39 @@
+.el-form .el-form-item.tpext-form-item {
+    margin-bottom: 6px;
+    padding-right: 14px;
+    padding-left: 14px;
+}
+
+.el-form.search-form .el-form-item.tpext-form-item {
+    margin-bottom: 4px;
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.el-form .el-form-item.tpext-form-item .el-form-item__content {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.el-form-item.tpext-form-item .el-form-item__content.fields-div {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.el-form-item__content.fields-div .el-form-item.tpext-form-item {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.el-form--label-left.no-margin-bottom .el-form-item__label {
+    margin-bottom: 0;
+}
+
+form .el-form-item .form-control {
+    width: 100%;
+}
+
+.el-row {
+    padding-left: 14px;
+    padding-right: 14px;
+}

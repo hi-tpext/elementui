@@ -8,7 +8,6 @@
   <title>首页 - {$admin_page_title|default=''}</title>
   <link rel="icon" href="{$admin_favicon|default=''}" type="image/ico">
   <meta name="description" content="{$admin_page_description|default=''}">
-  <link rel="stylesheet" href="/assets/elementui/lib/theme-chalk/index.css?v={$admin_assets_ver|default='1.0'}" />
   <link rel="stylesheet" href="/assets/elementui/css/index.css?v={$admin_assets_ver|default='1.0'}" />
   <link rel="stylesheet"
     href="/assets/lightyearadmin/css/materialdesignicons.min.css?v={$admin_assets_ver|default='1.0'}">
@@ -19,7 +18,6 @@
     <div class="page-layout" :class="{ collapse: menuCollapse }">
       <!-- 遮罩层 -->
       <div class="page-layout__mask" @click="collapseMenu(true)"></div>
-
       <div class="page-layout__left">
         <!-- 侧栏 -->
         <div class="app-slider">
@@ -33,46 +31,47 @@
             </template>
           </div>
           <div class="app-slider__menu">
-            <div class="cl-slider-menu" v-show="leftMenuVisible">
-              <el-menu default-active='' background-color="transparent" :collapse-transition="false"
+            <div class="cl-slider-menu">
+              <el-menu :default-active="activeTabId" background-color="transparent" :collapse-transition="false"
                 :collapse="browser.isMini ? false : menuCollapse" @select="leftMenuSelect">
                 <template v-for="(item, index) in leftMenu">
-                  <el-submenu v-if="item.children && item.children.length" popper-class="cl-slider-menu__submenu"
+                  <el-submenu v-show="!hasTopMenu || item.pid == topActiveId"
+                    v-if="item.children && item.children.length" popper-class="cl-slider-menu__submenu"
                     :index="item.id">
                     <template slot="title">
-                      <i class="munu-icon" :class="item.icon"></i>
+                      <i class="icon-svg" :class="item.icon"></i>
                       <span slot="title">{{item.name}}</span>
                     </template>
                     <template v-for="(subitem1, index) in item.children">
                       <el-submenu v-if="subitem1.children && subitem1.children.length"
                         popper-class="cl-slider-menu__submenu" :index="subitem1.id">
                         <template slot="title">
-                          <i class="munu-icon" :class="subitem1.icon"></i>
+                          <i class="icon-svg" :class="subitem1.icon"></i>
                           <span slot="title">{{subitem1.name}}</span>
                         </template>
                         <template v-for="(subitem2, index) in subitem1.children">
                           <el-submenu v-if="subitem2.children && subitem2.children.length"
                             popper-class="cl-slider-menu__submenu" :index="subitem2.id">
                             <template slot="title">
-                              <i class="munu-icon" :class="subitem2.icon"></i>
-                              <span slot="title">{{subitem2.name}}</span>
+                              <i class="icon-svg" :class="subitem2.icon"></i>
+                              <span slot="title" @contextmenu.prevent="stopDefault">{{subitem2.name}}</span>
                             </template>
                           </el-submenu>
                           <el-menu-item v-else :index="subitem2.id">
-                            <i class="munu-icon" :class="subitem2.icon"></i>
-                            <span slot="title">{{subitem2.name}}</span>
+                            <i class="icon-svg" :class="subitem2.icon"></i>
+                            <span slot="title" @contextmenu.prevent="stopDefault">{{subitem2.name}}</span>
                           </el-menu-item>
                         </template>
                       </el-submenu>
                       <el-menu-item v-else :index="subitem1.id">
-                        <i class="munu-icon" :class="subitem1.icon"></i>
-                        <span slot="title">{{subitem1.name}}</span>
+                        <i class="icon-svg" :class="subitem1.icon"></i>
+                        <span slot="title" @contextmenu.prevent="stopDefault">{{subitem1.name}}</span>
                       </el-menu-item>
                     </template>
                   </el-submenu>
-                  <el-menu-item v-else :index="item.id" :key="item.id">
-                    <i class="munu-icon" :class="item.icon"></i>
-                    <span slot="title">{{item.name}}</span>
+                  <el-menu-item v-show="!hasTopMenu || item.pid == topActiveId" v-else :index="item.id" :key="item.id">
+                    <i class="icon-svg" :class="item.icon"></i>
+                    <span slot="title" @contextmenu.prevent="stopDefault">{{item.name}}</span>
                   </el-menu-item>
                 </template>
               </el-menu>
@@ -80,7 +79,6 @@
           </div>
         </div>
       </div>
-
       <div class="page-layout__right">
         <!-- 顶栏 -->
         <div class="page-layout__topbar">
@@ -88,25 +86,24 @@
             <div class="app-topbar__collapse" @click="collapseMenu(!menuCollapse)">
               <i :class="[menuCollapse ? 'el-icon-s-unfold' : 'el-icon-s-fold']"></i>
             </div>
-
             <!-- 一级菜单 -->
-            <div class="app-topbar__menu">
+            <div class="app-topbar__menu" v-if="hasTopMenu">
               <div class="cl-menu-topbar">
-                <!-- <el-menu :default-active="index" mode="horizontal" background-color="transparent" @select="onSelect">
-                  <el-menu-item v-for="(item, index) in toplist" :index="`${index}`" :key="index">
-                    <icon-svg v-if="item.icon" :name="item.icon" :size="18"></icon-svg>
+                <el-menu :default-active="topActiveId" mode="horizontal" background-color="transparent"
+                  @select="topMenuSelect">
+                  <el-menu-item v-for="(item, index) in topMenu" :index="item.id" :key="item.id">
+                    <i class="icon-svg" :class="item.icon"></i>
                     <span>{{ item.name }}</span>
                   </el-menu-item>
-                </el-menu> -->
+                </el-menu>
               </div>
             </div>
 
-            <div class="cl-route-nav">
-              <p class="title" v-if="!browser.isMini">
+            <div class="cl-route-nav" v-if="!browser.isMini && !hasTopMenu">
+              <p class="title">
                 {$admin_page_title|default='admin'}
               </p>
             </div>
-
             <div class="flex1"></div>
             <!-- 工具栏 -->
             <ul class="app-topbar__tools">
@@ -136,7 +133,7 @@
                         <li :style="{
                                 backgroundColor: item.color
                               }" @click="setTheme(item)">
-                          <i class="el-icon-check" v-show="item.color == theme.color"></i>
+                          <i class="el-icon-check" v-show="item.color == themeInfo.color"></i>
                         </li>
                       </el-tooltip>
                     </ul>
@@ -145,16 +142,29 @@
                     <p>内容区域</p>
                     <ul>
                       <li v-if="!browser.isMini">
-                        <span>显示一级菜单栏</span>
-                        <el-switch size="mini" v-model="conf.showAMenu"></el-switch>
+                        <el-tooltip class="item" effect="dark" content="顶级菜单放到顶部显示，点击切换左边子菜单" placement="top-start">
+                          <span>显示顶部菜单栏</span>
+                        </el-tooltip>
+                        <el-switch size="mini" v-model="hasTopMenu"></el-switch>
                       </li>
                       <li>
-                        <span>显示路由导航栏</span>
-                        <el-switch size="mini" v-model="conf.showRouteNav"></el-switch>
+                        <el-tooltip class="item" effect="dark" content="切换顶部菜时激活其所属的第一个子菜单" placement="top-start">
+                          <span>激活第一个子菜单</span>
+                        </el-tooltip>
+                        <el-switch v-popover:popover :disabled="!hasTopMenu" size="mini" v-model="activeFirst">
+                        </el-switch>
                       </li>
                       <li>
-                        <span>显示页面进程栏</span>
-                        <el-switch size="mini" v-model="conf.showProcess"></el-switch>
+                        <el-tooltip class="item" effect="dark" content="收起来或展开左侧菜单" placement="top-start">
+                          <span>收缩左侧菜单栏</span>
+                        </el-tooltip>
+                        <el-switch size="mini" v-model="menuCollapse"></el-switch>
+                      </li>
+                      <li>
+                        <el-tooltip class="item" effect="dark" content="多页面选项卡，可控制在多个页面之间切换" placement="top-start">
+                          <span>显示页面切换栏</span>
+                        </el-tooltip>
+                        <el-switch size="mini" v-model="showProcess"></el-switch>
                       </li>
                     </ul>
                   </div>
@@ -181,17 +191,21 @@
         </div>
 
         <!-- 页面进程 -->
-        <div v-if="conf.showProcess" class="page-layout__process">
+        <div v-if="showProcess" class="page-layout__process">
           <div class="app-process">
             <div class="app-process__left hidden-xs-only" @click="toScroll(true)">
               <i class="el-icon-arrow-left"></i>
             </div>
             <div class="app-process__scroller" ref="scroller">
-              <div class="app-process__item" v-for="(item, index) in processList" :key="index" :ref="`item-${item.id}`"
-                :class="{ active: activeTabId == item.id}" :data-index="index" @click="activeItem(item,index)">
+              <div @dblclick="reloadItem(item)" class="app-process__item" v-for="(item, index) in processList"
+                :key="index" :ref="`item-${item.id}`" :class="{ active: activeTabId == item.id}" :data-index="index"
+                @click="activeItem(item,index)">
                 <span>{{ item.label }}</span>
                 <i class="el-icon-close" v-if="index > 0" @click.stop="onDel(index)"></i>
               </div>
+            </div>
+            <div class="app-process__right hidden-xs-only" @click="toScroll(false)">
+              <i class="el-icon-arrow-right"></i>
             </div>
             <el-dropdown @command="tabDropdownAction">
               <span class="el-dropdown-link">
@@ -203,16 +217,13 @@
                 <el-dropdown-item command="all" icon="el-icon-circle-close">关闭所有</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
-            <div class="app-process__right hidden-xs-only" @click="toScroll(false)">
-              <i class="el-icon-arrow-right"></i>
-            </div>
           </div>
         </div>
 
         <!-- 页面视图 -->
         <div class="page-layout__container" v-loading="iframeLoading">
           <div class="page-layout__view">
-            <iframe @load="iframeLoading=false" :style="{ display: activeTabId == item.id ? 'block' : 'none'}"
+            <iframe @load="iframeLoading=false" :ref="`iframe-${item.id}`" :class="{ hidden: activeTabId != item.id}"
               v-for="(item, index) in processList" :key="index" :name="'iframe'+index" width="100%" height="100%"
               :src="item.value" frameborder="0" :data-url="item.value" seamless></iframe>
           </div>
@@ -224,32 +235,31 @@
     charset="utf-8"></script>
   <script type="text/javascript" src="/assets/elementui/lib/index.js?v={$admin_assets_ver|default='1.0'}"
     charset="utf-8"></script>
-  <script type="text/javascript" src="/assets/elementui/lib/axios.min.js?v={$admin_assets_ver|default='1.0'}"
-    charset="utf-8"></script>
   <script type="text/javascript" src="/assets/elementui/js/index.js?v={$admin_assets_ver|default='1.0'}"
     charset="utf-8"></script>
-
+  <script type="text/javascript" src="/assets/elementui/lib/axios.min.js?v={$admin_assets_ver|default='1.0'}"
+    charset="utf-8"></script>
+  <script type="text/javascript" src="/assets/lightyearadmin/js/jquery.min.js?v={$admin_assets_ver|default='1.0'}"
+    charset="utf-8"></script>
+  <script type="text/javascript" src="/assets/tpextbuilder/js/layer/layer.js?v={$admin_assets_ver|default='1.0'}"
+    charset="utf-8"></script>
   <script type="text/javascript">
-    var browser = getBrowser();
-    var json_str = '{$menus|raw}';
-    var menuData = JSON.parse(json_str);
-    var treeObj = treeData(menuData, 'id', 'pid', 'children');
     var that = null;
+    var browser = getBrowser();
+    var themes = getThemes();
+    var json_str = '{$menus|raw}';
+    var menuJson = JSON.parse(json_str);
 
     var app = new Vue({
       el: "#app",
       data() {
         return {
-          conf: {
-            showAMenu: true,
-            showRouteNav: true,
-            showProcess: true,
-          },
+          hasTopMenu: '{$index_top_menu ?? 0}' == '1' && !browser.isMini,
+          activeFirst: localStorage.getItem('activeFirst') == 'y',
+          showProcess: true,
           menuCollapse: localStorage.getItem('menuCollapse') == 'y',
-          hasTopMenu: '{$index_top_menu ?? 0}' == '1',
-          leftMenuVisible: true,
           topMenu: [],
-          pathList: [],
+          leftMenu: [],
           processList: [
             {
               id: '{$dashbord.id}',
@@ -257,57 +267,58 @@
               value: '{$dashbord.url}',
             }
           ],
-          leftMenu: treeObj,
           iframeLoading: true,
           activeTabId: '{$dashbord.id}',
           activeTabIndex: 0,
+          topActiveId: 0,
           drawer: {
             visible: false
           },
-          desc: {
-            visible: false,
-            color: "",
-            conf: ""
+          themeInfo: {
+            label: "",
+            name: "",
+            color: ""
           },
-          theme: {
-            label: "钴蓝",
-            name: "blue",
-            color: "#4165d7"
-          },
-          themes: [
-            {
-              label: "钴蓝",
-              name: "blue",
-              color: "#4165d7"
-            },
-            {
-              label: "极黑",
-              name: "black",
-              color: "#2f3447"
-            },
-            {
-              label: "果绿",
-              name: "green",
-              color: "#51C21A"
-            },
-            {
-              label: "酱紫",
-              name: "purple",
-              color: "#d0378d"
-            }
-          ],
+          themes: themes,
         }
       },
-      computed: {
-        toplist() {
-          return that.topMenu.filter(e => e.isShow);
+      watch: {
+        hasTopMenu(v) {
+          this.buildMenu();
         },
+        activeFirst(v) {
+          localStorage.setItem('activeFirst', v ? 'y' : 'n');
+        },
+        menuCollapse(v) {
+          localStorage.setItem('menuCollapse', v ? 'y' : 'n');
+        }
       },
       mounted() {
         that = this;
-        document.getElementById('app').className = '';
+        this.buildMenu();
+        var theme = JSON.parse(localStorage.getItem('index_theme') || '{}');
+        if (!theme || !theme.name || !theme.color) {
+          theme = this.themes[0];
+        }
+        that.setTheme(theme);
+
+        Vue.nextTick(function () {
+          document.getElementById('app').className = ''
+        });
       },
       methods: {
+        buildMenu() {
+          var treeObj = treeData(menuJson, 'id', 'pid', 'children');
+          if (this.hasTopMenu) {
+            var menuInfo = getSubMenu(treeObj);
+            this.leftMenu = menuInfo.left;
+            this.topMenu = menuInfo.top;
+          }
+          else {
+            this.leftMenu = treeObj;
+            this.topMenu = [];
+          }
+        },
         collapseMenu(is) {
           that.menuCollapse = is;
           localStorage.setItem('menuCollapse', is ? 'y' : 'n');
@@ -326,18 +337,31 @@
           }
           else {
             var arr = e.split('|');
-            var find = this.processList.find(e => e.value == arr[1]);
+            var url = arr[1].replace(/\.html/i, '');
+            var find = this.processList.find(e => (e.value == url || e.value == url + '.html'));
             if (find) {
               this.activeItem(find);
             }
             else {
-              this.openPage(
-                {
-                  id: arr[1].replace(/\W/g, ''),
-                  label: arr[0],
-                  value: arr[1],
-                }
-              );
+              var find0 = menuJson.find(e => (e.url == url || e.url == url + '.html'));
+              if (find0) {
+                this.openPage(
+                  {
+                    id: find0.id,
+                    label: arr[0],
+                    value: find0.url,
+                  }
+                );
+              }
+              else {
+                this.openPage(
+                  {
+                    id: url.replace(/\W/g, ''),
+                    label: arr[0],
+                    value: url,
+                  }
+                );
+              }
             }
           }
         },
@@ -362,17 +386,13 @@
         openTheme() {
           that.drawer.visible = true;
         },
-        onSelect(e) {
-          console.log(e);
-        },
-        initTopMenu() {
-
-        },
         setTheme({ name, color, label }) {
-          if (that.theme.color == color) {
+          if (that.themeInfo.color == color) {
             return false;
           }
-          that.$message.success(`切换主题：${label}`);
+          if (that.themeInfo.label) {
+            that.$message.success(`切换主题：${label}`);
+          }
           var theme = document.getElementById("theme-style");
           var style = theme || document.createElement("link");
           style.href = `/assets/elementui/theme/${name}.css`;
@@ -383,9 +403,10 @@
             document.getElementsByTagName("head").item(0).appendChild(style);
           }
           // 设置主题色和路径
-          that.theme.color = color;
-          that.theme.url = style.href;
-          localStorage.setItem('index_theme', name);
+          that.themeInfo.color = color;
+          that.themeInfo.url = style.href;
+          that.themeInfo.name = name;
+          localStorage.setItem('index_theme', JSON.stringify(that.themeInfo));
           // 设置 css 变量
           document.getElementsByTagName("body")[0].style.setProperty("--color-primary", color);
         },
@@ -406,7 +427,11 @@
           }
           var diff = 50 * (index - this.activeTabIndex);//判断是往左点还是往右点，加上惯性
           this.activeTabIndex = index;
-          const el = this.$refs[`item-${item.id}`][0];
+
+          if (index == 0 || index == this.processList.length - 1) {
+            var diff = 0;
+          }
+          var el = this.$refs[`item-${item.id}`][0];
           if (el) {
             that.scrollToItem(el.offsetLeft + el.clientWidth - that.$refs["scroller"].clientWidth + diff);
           }
@@ -435,7 +460,7 @@
           }
         },
         toScroll(isLeft) {
-          this.scrollToItem(this.$refs["scroller"].scrollLeft + (isLeft ? -100 : 100));
+          this.scrollToItem(this.$refs["scroller"].scrollLeft + (isLeft ? -400 : 400));
         },
         scrollToItem(leftPos) {
           this.$refs["scroller"].scrollTo({
@@ -449,13 +474,35 @@
             this.activeItem(find);
           }
           else {
-            var find0 = menuData.find(e => e.id == id);
+            var find0 = menuJson.find(e => e.id == id);
             if (find0) {
               this.openPage(
                 {
                   id: find0.id,
                   label: find0.name,
                   value: find0.url,
+                }
+              );
+            }
+          }
+        },
+        topMenuSelect(id) {
+          this.topActiveId = id;
+          if (!this.activeFirst) {
+            return;
+          }
+          var find = menuJson.find(e => e.pid == id);
+          if (find) {
+            var find0 = this.processList.find(e => e.id == find.id);
+            if (find0) {
+              this.activeItem(find0);
+            }
+            else {
+              this.openPage(
+                {
+                  id: find.id,
+                  label: find.name,
+                  value: find.url,
                 }
               );
             }
@@ -473,9 +520,63 @@
           setTimeout(function () {
             this.iframeLoading = false;
           }, 3000);
+        },
+        reloadItem(item) {
+          var el = this.$refs[`iframe-${item.id}`][0];
+          if (el) {
+            el.contentWindow.location.reload(true);
+            this.iframeLoading = true;
+            setTimeout(function () {
+              this.iframeLoading = false;
+            }, 3000);
+          }
+        },
+        stopDefault(e) {
+          e.preventDefault();
+          e.stopPropagation();
         }
-      }
+      },
     });
+
+    $('a.open-tab').click(function () {
+      $.fn.multitabs().create(this, true);
+      return false;
+    });
+
+    ((function ($) {
+      // 兼容 lightyear 的 MultiTabs js
+      var MultiTabs = function (element) {
+        var self = this;
+        self.$element = $(element);
+      };
+      MultiTabs.prototype = {
+        constructor: MultiTabs,
+        /**
+         * create tab and return this.
+         * @param obj           the obj to trigger multitabs
+         * @param active        if true, active tab after create
+         * @returns this        Chain structure.
+         */
+        create: function (obj, active) {
+          var url = $(obj).attr("href"),
+            text = $.trim($(obj).attr('title') || $(obj).data('title') || $(obj).text());
+
+          app.onCommand(text + '|' + url);
+          return this;
+        },
+      };
+
+      $.fn.multitabs = function () {
+        var self = $(this),
+          did = 'multitabs',
+          multitabs = $(document).data(did);
+        if (!multitabs) {
+          multitabs = new MultiTabs(this);
+          $(document).data(did, multitabs);
+        }
+        return $(document).data(did);
+      };
+    })(jQuery));
   </script>
 </body>
 

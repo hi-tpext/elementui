@@ -1,0 +1,44 @@
+{extend name="$admin_layout"/}
+
+{block name="style"}
+{volist name="css" id="item"}
+<link href="{$item}" rel="stylesheet">
+{/volist}
+<style>
+  {$stylesheet|raw}
+</style>
+{/block}
+
+{block name="content"}
+<div id="app" class="hidden">
+  <el-card class="box-card panel-default content" :body-style="{padding:'15px 8px'}">
+    {notempty name="$title"}
+    <div slot="header" class="clearfix">
+      <span>{$title|raw}</span>
+      {notempty name="$desc"}
+      <small> - {$desc|raw}</small>
+      {/notempty}
+    </div>
+    {/notempty}
+    {volist name="rows" id="row"}
+    {:$row->render()}
+    {/volist}
+  </el-card>
+</div>
+{/block}
+
+{block name="script"}
+{volist name="js" id="item"}
+<script type="text/javascript" src="{$item}" charset="utf-8"></script>
+{/volist}
+<script type="text/javascript">
+
+  {$vuescript|raw}
+
+  Vue.nextTick(function () {
+    document.getElementById('app').className = '';
+{$script|raw}
+  });
+</script>
+<div class="hidden" id="script-div"></div>
+{/block}

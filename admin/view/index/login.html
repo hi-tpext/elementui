@@ -8,8 +8,7 @@
     <title>登录 - {$admin_page_title|default=''}</title>
     <link rel="icon" href="{$admin_favicon|default=''}" type="image/ico">
     <meta name="description" content="{$admin_page_description|default=''}">
-    <link rel="stylesheet"
-        href="/assets/elementui/lib/theme-chalk/index.css?v={$admin_assets_ver|default='1.0'}" />
+    <link rel="stylesheet" href="/assets/elementui/lib/theme-chalk/index.css?v={$admin_assets_ver|default='1.0'}" />
     <link rel="stylesheet" href="/assets/elementui/css/login.css?v={$admin_assets_ver|default='1.0'}" />
     <script>
         if ('{$login_in_top}' == '1' && window != top) {
@@ -32,7 +31,8 @@
 <body>
     {:\\tpext\\common\\ExtLoader::trigger('admin_login_page')}
     <div id="app">
-        <div class="page-login">
+        <div class="page-login" {if condition="$admin_login_background_img"
+            }style="background: url({$admin_login_background_img}) no-repeat;background-size: 100% 100%;" {/if}>
             <div class="box">
                 <img class="logo" src="{$admin_login_logo|default='/assets/lightyearadmin/images/logo-ico.png'}"
                     alt="{$admin_page_title|default=''}" />

@@ -1,0 +1,6 @@
+{include file="$labeltempl" /}
+<div class="el-form-item__content el-col-md-{$size[1]}" title="{$placeholder|default='请输入'.$label.',回车键分割'}">
+    <input type="text" class="form-control {$class}" placeholder="{$placeholder|default='请输入'.$label}" value="{$value}"
+        name="{$name}" id="{$id}" {$attr|raw}>
+    {include file="$helptempl" /}
+</div>
