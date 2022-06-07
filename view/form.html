@@ -1,6 +1,6 @@
 <div id="{$id}" class="form-wrapper">
-    <form action="{$action}" method="{$method|default='POST'}" enctype="application/x-www-form-urlencoded" class="{$class}"
-        {$attr|raw}>
+    <form id="{$id}" action="{$action}" method="{$method|default='POST'}" enctype="application/x-www-form-urlencoded"
+        class="{$class}" {$attr|raw}>
 
         {volist name="rows" id="row"}
         {if condition="$row instanceof tpext\builder\common\Tab"}
@@ -12,7 +12,7 @@
             {:$row->render()}
         </div>
         {else/}
-        <div class="el-form-item--small el-col-md-{$row->getColSizeClass()} {$row->getClass()} row-{$row->getName()}-div
+        <div class="el-form-item--small el-form-item el-col-md-{$row->getColSizeClass()} {$row->getClass()} row-{$row->getName()}-div
             {$row->getErrorClass()}" {$row->getAttrWithStyle()|raw}>
             {:$row->render()}
         </div>
@@ -33,104 +33,139 @@
         window.__forms__['{$id}'] = {
             ajax: '{$ajax}' == '1',
             action: '{$action}',
-            formSubmit: function () {
-                lightyear.loading('hide');
+            formSubmit: function (postdata) {
+                var loading = tpextApp.$loading({
+                    lock: true,
+                    text: '正在提交...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.2)'
+                });
                 var that = this;
                 if (that.ajax) {
-                    lightyear.loading('show');
-
-                    var postdata = $('#{$id} form').serialize();
-
-                    $.ajax({
+                    postdata['__token__'] = '{$__token__}';
+                    axios({
+                        method: "{$method|default='POST'}",
                         url: '{$action}' || location.href,
+                        responseType: 'json',
                         data: postdata,
-                        type: "{$method|default='POST'}",
-                        dataType: 'json',
-                        success: function (data) {
-                            setTimeout(function () {
-                                lightyear.loading('hide');
-                            }, 500);
-                            if (data.status || data.code) {
-                                if (data.layer_close) {
-                                    that.closeLayer(data.msg || data.message || '操作成功！', 'success');
-                                } else if (data.layer_close_refresh) {
-                                    that.closeLayerRefresh(data.msg || data.message || '操作成功！', 'success');
-                                } else if (data.layer_close_go) {
-                                    that.closeLayerGo(data.msg || data.message || '操作成功！', data
-                                        .layer_close_go, 'success');
-                                }
-                                else if (data.url) {
-                                    lightyear.notify(data.msg || data.message || '操作成功！', 'success');
-                                    setTimeout(function () {
-                                        location.replace(data.url);
-                                    }, data.wait * 1000 || 2000);
-                                }
-                                else {
-                                    lightyear.notify(data.msg || data.message || '操作成功！',
-                                        'success');
-                                }
-                            } else {
-                                if (data.layer_close) {
-                                    that.closeLayer(data.msg || data.message || '操作失败！', 'danger');
-                                } else if (data.layer_close_refresh) {
-                                    that.closeLayerRefresh(data.msg || data.message || '操作失败！', 'danger');
-                                } else if (data.layer_close_go) {
-                                    that.closeLayerGo(data.msg || data.message || '操作失败！', data
-                                        .layer_close_go, 'danger');
-                                }
-                                else if (data.url) {
-                                    lightyear.notify(data.msg || data.message || '操作失败', 'danger');
-                                    setTimeout(function () {
-                                        location.replace(data.url);
-                                    }, data.wait * 1000 || 2000);
-                                }
-                                else {
-                                    lightyear.notify(data.msg || data.message || '操作失败', 'danger');
-                                }
-                            }
-                            if (data.script || (data.data && data.data.script)) {
-                                var script = data.script || data.data.script;
-                                if ($('#script-div').size()) {
-                                    $('#script-div').html(script);
-                                } else {
-                                    $('body').append(
-                                        '<div class="hidden" id="script-div">' + script + '</div>');
-                                }
-                            }
+                        headers: {
+                            'x-requested-with': 'xmlhttprequest',
                         },
-                        error: function () {
-                            lightyear.loading('hide');
-                            lightyear.notify('网络错误', 'danger');
+                    }).then(function (res) {
+                        setTimeout(function () {
+                            loading.close();
+                        }, 500);
+                        [].concat
+                        var data = res.data;
+                        if (data.status || data.code) {
+                            if (data.layer_close) {
+                                that.closeLayer(data.msg || data.message || '操作成功！', 'success');
+                            } else if (data.layer_close_refresh) {
+                                that.closeLayerRefresh(data.msg || data.message || '操作成功！', 'success');
+                            } else if (data.layer_close_go) {
+                                that.closeLayerGo(data.msg || data.message || '操作成功！', data
+                                    .layer_close_go, 'success');
+                            }
+                            else if (data.url) {
+                                tpextApp.$message({
+                                    message: data.msg || data.message || '操作成功！',
+                                    type: 'success',
+                                    center: true,
+                                    offset: 200,
+                                });
+                                setTimeout(function () {
+                                    location.replace(data.url);
+                                }, data.wait * 1000 || 2000);
+                            }
+                            else {
+                                tpextApp.$message({
+                                    message: data.msg || data.message || '操作成功！',
+                                    type: 'success',
+                                    center: true,
+                                    offset: 200,
+                                });
+                            }
+                        } else {
+                            if (data.layer_close) {
+                                that.closeLayer(data.msg || data.message || '操作失败！', 'error');
+                            } else if (data.layer_close_refresh) {
+                                that.closeLayerRefresh(data.msg || data.message || '操作失败！', 'error');
+                            } else if (data.layer_close_go) {
+                                that.closeLayerGo(data.msg || data.message || '操作失败！', data
+                                    .layer_close_go, 'error');
+                            }
+                            else if (data.url) {
+                                tpextApp.$message({
+                                    message: data.msg || data.message || '操作失败',
+                                    type: 'error',
+                                    center: true,
+                                    offset: 200,
+                                });
+                                setTimeout(function () {
+                                    location.replace(data.url);
+                                }, data.wait * 1000 || 2000);
+                            }
+                            else {
+                                tpextApp.$message({
+                                    message: data.msg || data.message || '操作失败',
+                                    type: 'error',
+                                    center: true,
+                                    offset: 200,
+                                });
+                            }
                         }
+                        if (data.script || (data.data && data.data.script)) {
+                            var script = data.script || data.data.script;
+                            document.getElementById('script-div').innerHTML = script;
+                        }
+                    }).catch(function (e) {
+                        console.log(e);
+                        tpextApp.$message({
+                            message: e.msg || e.message || '网络错误',
+                            type: 'error',
+                            center: true,
+                            offset: 200,
+                        });
                     });
 
                     return false;
                 }
 
-                lightyear.loading('show');
-
-                setTimeout(function(){
-                    lightyear.loading('hide');
+                setTimeout(function () {
+                    loading.close();
                 }, 10000);
 
                 return true;
             },
             closeLayer: function (msg, style) {
                 if (parent) {
-                    parent.lightyear.notify(msg, style);
+                    parent.tpextApp.$message({
+                        message: msg,
+                        type: style,
+                        center: true,
+                        offset: 200,
+                    });
                     if (parent.layer) {
                         var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
                         parent.layer.close(index);
                     }
                 } else {
-                    lightyear.notify(msg, style);
+                    tpextApp.$message({
+                        message: msg,
+                        type: style,
+                        center: true,
+                        offset: 200,
+                    });
                 }
             },
             closeLayerRefresh: function (msg, style) {
                 if (parent) {
-                    parent.lightyear.notify(msg, style);
-                    if (parent.$('.search-refresh').size()) {
-                        parent.$('.search-refresh').trigger('click');
+                    parent.tpextApp.$message({
+                        message: msg,
+                        type: style
+                    });
+                    if (parent.document.querySelector('.search-refresh')) {
+                        parent.document.querySelector('.search-refresh').click();
                     } else {
                         parent.location.reload();
                     }
@@ -139,19 +174,32 @@
                         parent.layer.close(index);
                     }
                 } else {
-                    lightyear.notify(msg, style);
+                    tpextApp.$message({
+                        message: msg,
+                        type: style,
+                        center: true,
+                        offset: 200,
+                    });
                 }
             },
             closeLayerGo: function (msg, url, style) {
                 if (parent) {
-                    parent.lightyear.notify(msg, style);
+                    parent.tpextApp.$message({
+                        message: msg,
+                        type: style
+                    });
                     if (parent.layer) {
                         parent.location.replace(url);
                         var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
                         parent.layer.close(index);
                     }
                 } else {
-                    lightyear.notify(msg, style);
+                    tpextApp.$message({
+                        message: msg,
+                        type: style,
+                        center: true,
+                        offset: 200,
+                    });
                 }
             }
         };

@@ -20,10 +20,13 @@ class DateRange extends \tpext\builder\displayer\DateRange
 
     protected $separator = ',';
 
+    protected $befro = '';
+
     protected $jsOptions = [
         'type' => '', //date/month
-        'start_placeholder' => '选择起始日期',
-        'end_placeholder' => '选择截止日期',
+        'start_placeholder' => '起始日期',
+        'end_placeholder' => '截止日期',
+        'firstDayOfWeek' => 1, //周起始日
     ];
 
     /**
@@ -44,9 +47,12 @@ class DateRange extends \tpext\builder\displayer\DateRange
         $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
         $this->addAttr('size="small"');
         $this->addAttr('format="' . $this->format . '"');
+        $this->addAttr('value-format="' . $this->format . '"');
         $this->addAttr('start-placeholder="' . $this->jsOptions['start_placeholder'] . '"');
         $this->addAttr('end-placeholder="' . $this->jsOptions['end_placeholder'] . '"');
         $this->addAttr('range-separator="' . $this->separator . '"');
+        $this->addAttr(':firstDayOfWeek="' . $this->jsOptions['firstDayOfWeek'] . '"');
+        $this->addStyle('width:100%;max-width:220px;');
 
         if (empty($this->jsOptions['type'])) { //未明确指定类型
 

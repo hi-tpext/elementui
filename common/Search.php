@@ -33,6 +33,32 @@ class Search extends baseSearch
         }
     }
 
+    protected function eventScript()
+    {
+        $vueEventName = $this->getVueEventName();
+        $vueFieldName = $this->getVueFieldName();
+
+        $script = <<<EOT
+        
+        {$vueEventName}Submit() {
+            console.log(this.{$vueFieldName})
+        }
+
+EOT;
+        $this->vueMethods($script);
+        return $this;
+    }
+
+    public function getVueFieldName()
+    {
+        return preg_replace('/[^\w\.]/', '_', $this->getFormId());
+    }
+
+    public function getVueEventName()
+    {
+        return preg_replace('/\W/', '_', $this->getVueFieldName());
+    }
+
     public function beforRender()
     {
         parent::beforRender();

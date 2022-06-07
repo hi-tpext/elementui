@@ -74,8 +74,8 @@ class Builder extends baseBuilder
             'button' => \elementui\displayer\Button::class,
             'select' => \elementui\displayer\Select::class,
             'multipleSelect' => \elementui\displayer\MultipleSelect::class,
-            'dualListbox' => \elementui\displayer\DualListbox::class,
-            'transfer' => \elementui\displayer\DualListbox::class,
+            'dualListbox' => \elementui\displayer\Transfer::class,
+            'transfer' => \elementui\displayer\Transfer::class,
             'hidden' => \elementui\displayer\Hidden::class,
             'switchBtn' => \elementui\displayer\SwitchBtn::class,
             'tags' => \elementui\displayer\Tags::class,
@@ -140,14 +140,15 @@ class Builder extends baseBuilder
         $vueWatch = implode(PHP_EOL, $this->vueWatch);
 
         $vuescript = <<<EOT
-
-    var tpextApp = new Vue({
+    var tpextApp = null;
+    new Vue({
         el: "#app",
         data() {
             var that = this;
             return {$vueData};   
         },
         mounted() {
+            tpextApp = this;
             {$vueMounted}
         },
         watch: {
@@ -180,22 +181,8 @@ EOT;
     public function vueData($data)
     {
         foreach ($data as $k => $v) {
-
-            $k = str_replace(['-', '[', ']'], ['_', '.', ''], $k);
-
-            if (strstr($k, '.')) { //'a.b' = 'c' 转换为多维 {a: {b: 'c'}}
-                $arr = explode('.', $k);
-                $size = count($arr);
-
-                for ($i = 1; $i < $size; $i += 1) {
-                    if (!isset($this->vueData[$arr[$i - 1]])) {
-                        $this->vueData[$arr[$i - 1]] = [];
-                    }
-                    $this->vueData[$arr[$i - 1]][$arr[$i]] = $v;
-                }
-            } else {
-                $this->vueData[$k] = $v;
-            }
+            $k = str_replace('-', '_', $k);
+            $this->vueData[$k] = $v;
         }
 
         return $this;
@@ -225,7 +212,7 @@ EOT;
     public function vueMethods($code)
     {
         if (!empty($code)) {
-            $this->vueMethods[] = rtrim($code, ',') . ',';
+            $this->vueMethods[] = rtrim($code, "\t\n\r,") . ",";
         }
 
         return $this;
@@ -240,7 +227,7 @@ EOT;
     public function vueWatch($code)
     {
         if (!empty($code)) {
-            $this->vueWatch[] = rtrim($code, ',') . ',';
+            $this->vueWatch[] = rtrim($code, "\t\n\r,") . ",";
         }
 
         return $this;

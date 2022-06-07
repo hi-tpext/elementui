@@ -13,9 +13,9 @@ class SRow extends baseSRow
      */
     protected $displayer;
 
-    public function getClass()
+    public function getVueFieldName()
     {
-        return parent::getClass() . ' el-form-item tpext-form-item';
+        return $this->displayer->getVueFieldName();
     }
 
     /**
@@ -40,6 +40,8 @@ class SRow extends baseSRow
 
             $data = $this->displayer->getVueData();
             $data['value'] = $this->displayer->renderValue();
+            $data['origin_value'] = $this->displayer->renderValue();
+            $data['isInput'] = $this->displayer->isInput();
 
             $fieldName = $this->displayer->getName();
 

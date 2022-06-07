@@ -15,7 +15,12 @@ class FRow extends baseFRow
 
     public function getClass()
     {
-        return parent::getClass() . ($this->getDisplayer()->isRequired() ? ' tpext-form-item el-form-item  is-required' : ' el-form-item tpext-form-item');
+        return parent::getClass() . ($this->getDisplayer()->isRequired() ? ' is-required' : '');
+    }
+
+    public function getVueFieldName()
+    {
+        return $this->displayer->getVueFieldName();
     }
 
     /**
@@ -38,8 +43,18 @@ class FRow extends baseFRow
 
         if ($this->displayer->isInput()) {
 
+            $this->addAttr(':class="{\'is-error\' : ' . $this->getVueFieldName() . '.isError}"');
+
             $data = $this->displayer->getVueData();
             $data['value'] = $this->displayer->renderValue();
+            $data['origin_value'] = $this->displayer->renderValue();
+            $data['isInput'] = $this->displayer->isInput();
+            $data['isRequired'] = $this->displayer->isRequired() ? true : false;
+            $data['isReadonly'] = $this->displayer->isReadonly() ? true : false;
+            $data['isDisabled'] = $this->displayer->isDisabled() ? true : false;
+            $data['isError'] = $this->displayer->getError() ? true : false;
+            $data['label'] = $this->displayer->getLabel();
+            $data['label'] = $this->displayer->readonly();
 
             $fieldName = $this->displayer->getName();
 

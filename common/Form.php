@@ -22,6 +22,16 @@ class Form extends baseForm
         return $this;
     }
 
+    public function getVueFieldName()
+    {
+        return preg_replace('/[^\w\.]/', '_', $this->getFormId());
+    }
+
+    public function getVueEventName()
+    {
+        return preg_replace('/\W/', '_', $this->getVueFieldName());
+    }
+
     /**
      * Undocumented function
      *
@@ -34,11 +44,149 @@ class Form extends baseForm
         }
     }
 
+    protected function eventScript()
+    {
+        $vueEventName = $this->getVueEventName();
+        $vueFieldName = $this->getVueFieldName();
+
+        $form = $this->getFormId();
+
+        $script = <<<EOT
+        
+        {$vueEventName}Submit() {
+            var data = {};
+            var errors = [];
+            for(var k in this.{$vueFieldName})
+            {
+                var field = this.{$vueFieldName}[k];
+
+                if(field.isRequired && (field.value === '' || field.value === null || field.value === undefined))
+                {
+                    errors.push(field.label + '是必填字段');
+                    this.{$vueFieldName}[k].isError = true;
+                }
+                else
+                {
+                    this.{$vueFieldName}[k].isError = false;
+                }
+
+                if(field.isInput)
+                {
+                    if(k.indexOf('.') > -1)
+                    {
+                        var arr = k.split('.');
+                        if(data[arr[0]] === undefined)
+                        {
+                            data[arr[0]] = {};
+                        }
+                        data[arr[0]][arr[1]] = field.value;
+                    }
+                    else
+                    {
+                        data[k] = field.value;
+                    }
+                }
+            }
+
+            if(errors.length)
+            {
+                this.\$message({
+                    message: errors[0],
+                    type: 'error',
+                    center: true,
+                    offset: 200
+                });
+
+                return false;
+            }
+
+            return window.__forms__['{$form}'].formSubmit(data);
+        },
+        {$vueEventName}Reset() {
+            for(var k in this.{$vueFieldName})
+            {
+                this.{$vueFieldName}[k].value = this.{$vueFieldName}[k].origin_value;
+            }
+        }
+
+EOT;
+        $this->vueMethods($script);
+        return $this;
+    }
+
+    protected function validatorScript()
+    {
+        $form = $this->getFormId();
+
+        $rules = json_encode($this->validator);
+
+        $script = <<<EOT
+
+        window.focus();
+
+        $(document).bind('keyup', function(event) {
+            if (event.keyCode === 0x1B) {
+                var index = layer.msg('关闭当前弹窗？', {
+                    time: 2000,
+                    btn: ['确定', '取消'],
+                    yes: function (params) {
+                        layer.close(index);
+                        var index2 = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index2);
+                    }
+                });
+                return false; //阻止系统默认esc事件
+            }
+        });
+EOT;
+        Builder::getInstance()->addScript($script);
+
+        return $script;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $label
+     * @param integer|string $size
+     * @param string $class
+     * @return $this
+     */
+    public function btnSubmit($label = '提&nbsp;&nbsp;交', $size = '6 col-lg-6 col-sm-6 col-xs-6', $class = 'btn-info')
+    {
+        $vueEventName = $this->getVueEventName();
+
+        $this->bottomOffset();
+        $this->button('submit', $label, $size)->addAttr('@click="' . $vueEventName . 'Submit"')->class($class . ' ' . $this->butonsSizeClass);
+        $this->botttomButtonsCalled = true;
+        return $this;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $label
+     * @param integer|string $size
+     * @param string $class
+     * @return $this
+     */
+    public function btnReset($label = '重&nbsp;&nbsp;置', $size = '6 col-lg-6 col-sm-6 col-xs-6', $class = 'btn-warning')
+    {
+        $vueEventName = $this->getVueEventName();
+
+        $this->bottomOffset();
+        $this->button('reset', $label, $size)->addAttr('@click="' . $vueEventName . 'Reset"')->class($class . ' ' . $this->butonsSizeClass);
+        $this->botttomButtonsCalled = true;
+        return $this;
+    }
+
     public function beforRender()
     {
         parent::beforRender();
 
         $this->applyVue($this->getFormId());
+
+        $this->eventScript();
 
         return $this;
     }

@@ -18,7 +18,11 @@ class DateTime extends \tpext\builder\displayer\DateTime
 
     protected $format = 'yyyy-MM-dd HH:mm:ss';
 
-    protected $jsOptions = [];
+    protected $befro = '';
+
+    protected $jsOptions = [
+        'firstDayOfWeek' => 1, //周起始日
+    ];
 
     /**
      * Undocumented function
@@ -38,7 +42,10 @@ class DateTime extends \tpext\builder\displayer\DateTime
         $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
         $this->addAttr('size="small"');
         $this->addAttr('format="' . $this->format . '"');
+        $this->addAttr('value-format="' . $this->format . '"');
         $this->addAttr('type="datetime"');
+        $this->addAttr(':firstDayOfWeek="' . $this->jsOptions['firstDayOfWeek'] . '"');
+        $this->addStyle('width:100%;max-width:220px;');
 
         $this->setPickerOptions();
 

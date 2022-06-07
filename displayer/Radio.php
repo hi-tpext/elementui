@@ -12,7 +12,7 @@ class Radio extends \tpext\builder\displayer\Radio
 
     public function beforRender()
     {
-        $this->whenScript();
+        parent::beforRender();
 
         if (!($this->value === '' || $this->value === null)) {
             $this->checked = '' . $this->value;
@@ -34,36 +34,18 @@ class Radio extends \tpext\builder\displayer\Radio
 
         $options = [];
 
-        foreach ($this->options as $k => $opt) {
+        foreach ($this->options as $key => $opt) {
             $options[] = [
-                'key' => '' . $k,
+                'key' => '' . $key,
                 'label' => $opt,
-                'disabled' => in_array($k, $this->disabledOptions)
+                'disabled' => in_array($key, $this->disabledOptions)
             ];
         }
 
+        $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
         $this->vueData(['options' => $options]);
         $this->vueData(['checked' => $this->checked]);
 
-        $this->eventScript();
-
-        return $this;
-    }
-
-    protected function eventScript()
-    {
-        $vueFieldName = $this->getVueFieldName();
-        $vueEventName = preg_replace('/\W/', '_', $vueFieldName);
-
-        $script = <<<EOT
-
-          {$vueEventName}CheckedChange(value) {
-            //
-            console.log(value);
-          }
-
-EOT;
-        $this->vueMethods($script);
         return $this;
     }
 
@@ -71,13 +53,11 @@ EOT;
     {
         $vars = $this->commonVars();
 
-        $vueFieldName = $this->getVueFieldName();
-
         $vars = array_merge($vars, [
             'inline' => $this->inline && !$this->blockStyle ? true : false,
             'blockStyle' => $this->blockStyle ? true : false,
-            'vueFieldName' => $vueFieldName,
-            'vueEventName' => preg_replace('/\W/', '_', $vueFieldName),
+            'vueFieldName' => $this->getVueFieldName(),
+            'vueEventName' => $this->getVueEventName(),
         ]);
 
         $viewshow = $this->getViewInstance();

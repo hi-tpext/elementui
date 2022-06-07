@@ -35,7 +35,7 @@ class Number extends \tpext\builder\displayer\Number
         $this->addAttr('size="small"');
         $this->addAttr('controls-position="right"');
         $this->addAttr('step="' . $this->jsOptions['step'] . '"');
-        $this->addStyle('width:100%;max-width:160px;');
+        $this->addStyle('width:100%;max-width:220px;');
 
         if ($this->jsOptions['step_strictly']) {
             $this->addAttr(':step-strictly="true"');

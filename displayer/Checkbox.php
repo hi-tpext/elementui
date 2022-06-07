@@ -12,7 +12,7 @@ class Checkbox extends \tpext\builder\displayer\Checkbox
 
     public function beforRender()
     {
-        $this->whenScript();
+        parent::beforRender();
 
         if (!($this->value === '' || $this->value === null || $this->value === [])) {
             $this->checked = is_array($this->value) ? $this->value : explode(',', $this->value);
@@ -34,11 +34,11 @@ class Checkbox extends \tpext\builder\displayer\Checkbox
 
         $options = [];
 
-        foreach ($this->options as $k => $opt) {
+        foreach ($this->options as $key => $opt) {
             $options[] = [
-                'key' => '' . $k,
+                'key' => '' . $key,
                 'label' => $opt,
-                'disabled' => in_array($k, $this->disabledOptions)
+                'disabled' => in_array($key, $this->disabledOptions)
             ];
         }
 
@@ -47,7 +47,7 @@ class Checkbox extends \tpext\builder\displayer\Checkbox
 
         if ($this->checkallBtn) {
             $count = 0;
-            foreach ($this->options as $key => $op) {
+            foreach ($this->options as $key => $opt) {
                 if (in_array($key, $this->checked)) {
                     $count += 1;
                 }
@@ -69,16 +69,16 @@ class Checkbox extends \tpext\builder\displayer\Checkbox
     protected function eventScript()
     {
         $vueFieldName = $this->getVueFieldName();
-        $vueEventName = preg_replace('/\W/', '_', $vueFieldName);
+        $vueEventName = $this->getVueEventName();
 
         $script = <<<EOT
         
         {$vueEventName}CheckAllChange(checked) {
-            this.{$vueFieldName}.value = [];
+            tpextApp.{$vueFieldName}.value = [];
             var value = [];
             if(checked)
             {
-                this.{$vueFieldName}.options.forEach(function(item){
+                tpextApp.{$vueFieldName}.options.forEach(function(item){
                     if(!item.disabled)
                     {
                         value.push(item.key);
@@ -86,22 +86,22 @@ class Checkbox extends \tpext\builder\displayer\Checkbox
                 });
             }
 
-            this.{$vueFieldName}.value = value;
+            tpextApp.{$vueFieldName}.value = value;
             var checkedCount = value.length;
-            var checkAll = checkedCount > 0 && checkedCount === this.{$vueFieldName}.options.length;
-            var indeterminate = checkedCount > 0 && checkedCount < this.{$vueFieldName}.options.length;
+            var checkAll = checkedCount > 0 && checkedCount === tpextApp.{$vueFieldName}.options.length;
+            var indeterminate = checkedCount > 0 && checkedCount < tpextApp.{$vueFieldName}.options.length;
 
-            this.{$vueFieldName}.checkAll = checkAll;
-            this.{$vueFieldName}.indeterminate = indeterminate;
-          },
-          {$vueEventName}CheckedChange(value) {
+            tpextApp.{$vueFieldName}.checkAll = checkAll;
+            tpextApp.{$vueFieldName}.indeterminate = indeterminate;
+        },
+        {$vueEventName}CheckedChange(value) {
             var checkedCount = value.length;
-            var checkAll = checkedCount > 0 && checkedCount === this.{$vueFieldName}.options.length;
-            var indeterminate = checkedCount > 0 && checkedCount < this.{$vueFieldName}.options.length;
+            var checkAll = checkedCount > 0 && checkedCount === tpextApp.{$vueFieldName}.options.length;
+            var indeterminate = checkedCount > 0 && checkedCount < tpextApp.{$vueFieldName}.options.length;
 
-            this.{$vueFieldName}.checkAll = checkAll;
-            this.{$vueFieldName}.indeterminate = indeterminate;
-          }
+            tpextApp.{$vueFieldName}.checkAll = checkAll;
+            tpextApp.{$vueFieldName}.indeterminate = indeterminate;
+        }
 
 EOT;
         $this->vueMethods($script);
@@ -112,14 +112,12 @@ EOT;
     {
         $vars = $this->commonVars();
 
-        $vueFieldName = $this->getVueFieldName();
-
         $vars = array_merge($vars, [
             'inline' => $this->inline && !$this->blockStyle ? true : false,
             'blockStyle' => $this->blockStyle ? true : false,
             'checkallBtn' => $this->checkallBtn,
-            'vueFieldName' => $vueFieldName,
-            'vueEventName' => preg_replace('/\W/', '_', $vueFieldName),
+            'vueFieldName' => $this->getVueFieldName(),
+            'vueEventName' => $this->getVueEventName(),
         ]);
 
         $viewshow = $this->getViewInstance();

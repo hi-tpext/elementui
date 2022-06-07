@@ -21,22 +21,8 @@ trait HasVue
     public function vueData($data)
     {
         foreach ($data as $k => $v) {
-
             $k = str_replace(['-', '[', ']'], ['_', '.', ''], $k);
-
-            if (strstr($k, '.')) { //'a.b' = 'c' 转换为多维 {a: {b: 'c'}}
-                $arr = explode('.', $k);
-                $size = count($arr);
-
-                for ($i = 1; $i < $size; $i += 1) {
-                    if (!isset($this->vueData[$arr[$i - 1]])) {
-                        $this->vueData[$arr[$i - 1]] = [];
-                    }
-                    $this->vueData[$arr[$i - 1]][$arr[$i]] = $v;
-                }
-            } else {
-                $this->vueData[$k] = $v;
-            }
+            $this->vueData[$k] = $v;
         }
 
         return $this;
@@ -69,7 +55,7 @@ trait HasVue
     public function vueMethods($code)
     {
         Builder::getInstance()->vueMethods($code);
-        
+
         return $this;
     }
 

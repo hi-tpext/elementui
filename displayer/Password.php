@@ -22,6 +22,7 @@ class Password extends \tpext\builder\displayer\Password
         $this->addAttr('size="small"');
         $this->addAttr(':clearable="true"');
         $this->addAttr(':show-password="true"');
+        $this->addStyle('width:100%;max-width:360px;');
 
         if ($this->maxlength > 0) {
             $this->addAttr('show-word-limit="true"');

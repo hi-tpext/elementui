@@ -47,8 +47,6 @@ class SizeAdapter extends baseSizeAdapter
             return 'el-col-' . $mch[1] . '-' . (intval($mch[2]) * 2);
         }, (string)$size[0]);
 
-        //
-
         if (preg_match('/^([\d\.]{1,4})\s*/', $size[1], $mch)) {
             $col = intval($mch[1] * 2);
             $size[1] = preg_replace('/^([\d\.]{1,4})/', $col, $size[1]);

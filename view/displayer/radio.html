@@ -1,21 +1,18 @@
 {include file="$labeltempl" /}
 <div class="el-form-item__content el-col-md-{$size[1]} radio-div" id="{$id}">
-    <el-radio-group {$attr|raw} size="mini" class="{$class}" v-model="{$vueFieldName}.value"
-        @change="{$vueEventName}CheckedChange">
+    <el-radio-group {$attr|raw} size="mini" class="{$class}">
         {if condition="$blockStyle"}
-        <template v-for="item in {$vueFieldName}.options">
-            <el-radio-button class="{$class}" :disabled="item.disabled" :label="item.key">
-                {{item.label}}
-            </el-radio-button>
-        </template>
+        <el-radio-button v-for="item in {$vueFieldName}.options" name="{$name}" class="{$class}"
+            :disabled="item.disabled" :key="item.key" :label="item.key">
+            {{item.label}}
+        </el-radio-button>
         {else}
-        <template v-for="item in {$vueFieldName}.options">
-            <el-radio class="{$class}" :disabled="item.disabled" :label="item.key">{{item.label}}
-            </el-radio>
-            {if condition="!$inline"}
-            <div style="height: 1px;width:100%"></div>
-            {/if}
-        </template>
+        <el-radio v-for="item in {$vueFieldName}.options" name="{$name}" class="{$class}" :disabled="item.disabled"
+            :key="item.key" :label="item.key">{{item.label}}
+        </el-radio>
+        {if condition="!$inline"}
+        <div style="height: 1px;width:100%"></div>
+        {/if}
         {/if}
     </el-radio-group>
     {include file="$helptempl" /}

@@ -15,9 +15,14 @@ trait HasVueField
         $wrapper = $this->getWrapper();
 
         if (($wrapper instanceof \elementui\form\FRow) || ($wrapper instanceof \elementui\search\SRow)) {
-            return preg_replace('/[^\w\.]/', '_', $this->getWrapper()->getForm()->getFormId()) . '.' . $name;
+            return $this->getWrapper()->getForm()->getVueFieldName() . '[\'' . $name . '\']';
         } else {
-            return preg_replace('/[^\w\.]/', '_', $this->getWrapper()->getTable()->getTableId()) . '_item.' . $name;
+            return $this->getWrapper()->getTable()->getVueFieldName() . '_item[\'' . $name . '\']';
         }
+    }
+
+    public function getVueEventName()
+    {
+        return preg_replace('/\W/', '_', $this->getVueFieldName());
     }
 }

@@ -18,8 +18,11 @@ class Date extends \tpext\builder\displayer\Date
 
     protected $format = 'yyyy-MM-dd';
 
+    protected $befro = '';
+
     protected $jsOptions = [
         'type' => '', //date/month
+        'firstDayOfWeek' => 1, //周起始日
     ];
 
     /**
@@ -40,6 +43,9 @@ class Date extends \tpext\builder\displayer\Date
         $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
         $this->addAttr('size="small"');
         $this->addAttr('format="' . $this->format . '"');
+        $this->addAttr('value-format="' . $this->format . '"');
+        $this->addAttr(':firstDayOfWeek="' . $this->jsOptions['firstDayOfWeek'] . '"');
+        $this->addStyle('width:100%;max-width:220px;');
 
         if (empty($this->jsOptions['type'])) { //未明确指定类型
 

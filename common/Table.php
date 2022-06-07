@@ -29,4 +29,14 @@ class Table extends baseTable
             Builder::getInstance()->vueData([$key => $this->vueData]);
         }
     }
+
+    public function getVueFieldName()
+    {
+        return preg_replace('/[^\w\.]/', '_', $this->getTableId());
+    }
+
+    public function getVueEventName()
+    {
+        return preg_replace('/\W/', '_', $this->getVueFieldName());
+    }
 }

@@ -5,7 +5,7 @@ namespace elementui\displayer;
 use elementui\traits\HasVue;
 use elementui\traits\HasVueField;
 
-class DualListbox extends \tpext\builder\displayer\DualListbox
+class Transfer extends \tpext\builder\displayer\Transfer
 {
     use HasVue;
     use HasVueField;
@@ -14,9 +14,14 @@ class DualListbox extends \tpext\builder\displayer\DualListbox
 
     protected $css = [];
 
+    protected function dualListScript()
+    {
+        return '';
+    }
+
     public function beforRender()
     {
-        //$this->whenScript();
+        parent::beforRender();
 
         if (!($this->value === '' || $this->value === null || $this->value === [])) {
             $this->checked = is_array($this->value) ? $this->value : explode(',', $this->value);
@@ -32,11 +37,25 @@ class DualListbox extends \tpext\builder\displayer\DualListbox
 
         $options = [];
 
-        foreach ($this->options as $k => $opt) {
+        foreach ($this->options as $key => $opt) {
+
+            if (isset($opt['options']) && isset($opt['label'])) {
+
+                foreach ($opt['options'] as $k => $o) {
+                    $options[] = [
+                        'key' => '' . $k,
+                        'label' => $opt['label'] . '-' . $o,
+                        'disabled' => in_array($key, $this->disabledOptions)
+                    ];
+                }
+
+                continue;
+            }
+
             $options[] = [
-                'key' => '' . $k,
+                'key' => '' . $key,
                 'label' => $opt,
-                'disabled' => in_array($k, $this->disabledOptions)
+                'disabled' => in_array($key, $this->disabledOptions)
             ];
         }
 
@@ -57,7 +76,15 @@ class DualListbox extends \tpext\builder\displayer\DualListbox
     public function render()
     {
         $vars = $this->commonVars();
+
+        $vars = array_merge($vars, [
+            'group' => $this->group,
+            'vueFieldName' => $this->getVueFieldName(),
+            'vueEventName' => $this->getVueEventName(),
+        ]);
+
         $viewshow = $this->getViewInstance();
+
         return $viewshow->assign($vars)->getContent();
     }
 }
