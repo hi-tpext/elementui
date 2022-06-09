@@ -4,7 +4,7 @@ namespace elementui\traits;
 
 trait HasVueField
 {
-    public function getVueFieldName()
+    public function getVueFieldName($dot = false)
     {
         $name = $this->getName();
 
@@ -15,9 +15,9 @@ trait HasVueField
         $wrapper = $this->getWrapper();
 
         if (($wrapper instanceof \elementui\form\FRow) || ($wrapper instanceof \elementui\search\SRow)) {
-            return $this->getWrapper()->getForm()->getVueFieldName() . '[\'' . $name . '\']';
+            return $this->getWrapper()->getForm()->getVueFieldName() . ($dot ? '.' . $name : '[\'' . $name . '\']');
         } else {
-            return $this->getWrapper()->getTable()->getVueFieldName() . '_item[\'' . $name . '\']';
+            return $this->getWrapper()->getTable()->getVueFieldName() . ($dot ? '_item.' . $name : '_item[\'' . $name . '\']');
         }
     }
 

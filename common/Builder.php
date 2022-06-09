@@ -140,6 +140,7 @@ class Builder extends baseBuilder
         $vueWatch = implode(PHP_EOL, $this->vueWatch);
 
         $vuescript = <<<EOT
+
     var tpextApp = null;
     new Vue({
         el: "#app",

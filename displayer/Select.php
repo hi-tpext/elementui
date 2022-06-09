@@ -60,12 +60,10 @@ class Select extends \tpext\builder\displayer\Select
         $this->addAttr('size="small"');
         $this->addAttr(':clearable="true"');
         $this->addAttr(':filterable="true"');
-        $this->addAttr(':loading="' . $this->getVueFieldName() . '.loading"');
         $this->addStyle('width:100%;max-width:220px;');
 
         $this->vueData(['options' => $options]);
         $this->vueData(['checked' => $this->checked]);
-        $this->vueData(['loading' => false]);
         $this->vueData(['loadtext' => '']);
 
         return $this;
@@ -130,17 +128,18 @@ class Select extends \tpext\builder\displayer\Select
     {
         $thisVueFieldName = $this->getVueFieldName();
 
-        $prevVueEventName = $this->prevSelect->getVueEventName();
-
-        $this->prevSelect->addAttr('@change="' . $prevVueEventName . 'Change"');
+        $prevVueFieldName = $this->prevSelect->getVueFieldName(true);
+        $thisVueEventName = $this->getVueEventName();
 
         $script = <<<EOT
-            {$prevVueEventName}Change() {
-                tpextApp.{$thisVueFieldName}.options = [];//清空选项
-                tpextApp.{$thisVueFieldName}Remote('');//触发远程加载
+            '{$prevVueFieldName}.value'(value) {
+                console.log(value)
+                tpextApp.{$thisVueFieldName}.options = []; //清空选项
+                tpextApp.{$thisVueFieldName}.value = ''; //清空值
+                tpextApp.{$thisVueEventName}Focus(); //触发远程加载
             }
     EOT;
-        $this->vueMethods($script);
+        $this->vueWatch($script);
 
         return $this;
     }
@@ -159,9 +158,16 @@ class Select extends \tpext\builder\displayer\Select
             $prevVueFieldName = $this->prevSelect ? $this->prevSelect->getVueFieldName() : '';
             $formVueFieldName = $this->getWrapper()->getForm()->getVueFieldName();
 
-            $this->addAttr(':remote="true"');
-            $this->addAttr(':remote-method="' . $thisVueEventName . 'Remote"');
+            //$this->addAttr(':remote="true"');
+            $this->addAttr(':filter-method="' . $thisVueEventName . 'Filter"');
+            $this->addAttr('popper-class="' . $selectId . '-dropdown"');
+            $this->addAttr('@focus="' . $thisVueEventName . 'Focus"');
+            $this->addAttr('@visible-change="' . $thisVueEventName . 'VisibleChange"');
+            $this->addAttr('autocomplete="off"');
+
             $this->vueData(['page' => 1]);
+            $this->vueData(['query' => '']);
+            $this->vueData(['has_more' => false]);
 
             $ajax = $this->jsOptions['ajax'];
             $url = $ajax['url'];
@@ -175,13 +181,27 @@ class Select extends \tpext\builder\displayer\Select
             $prevText = $this->prevSelect ? "tpextApp.{$prevVueFieldName}.value" : "''";
 
             $script = <<<EOT
-        
-            {$thisVueEventName}Remote(query) {
-                let that = this;
+
+            {$thisVueEventName}VisibleChange(isV) {
+
+            },
+            {$thisVueEventName}Focus(e) {
+                tpextApp.{$thisVueFieldName}.page = 1;
+                tpextApp.{$thisVueFieldName}.options = [];
+                tpextApp.{$thisVueFieldName}.query = '';
+                tpextApp.{$thisVueEventName}load();
+            },
+            {$thisVueEventName}Filter(query) {
+                tpextApp.{$thisVueFieldName}.query = query;
+                tpextApp.{$thisVueFieldName}.page = 1;
+                tpextApp.{$thisVueFieldName}.options = [];
+                tpextApp.{$thisVueEventName}load();
+            },
+            {$thisVueEventName}load() {
                 var withParams = JSON.parse('{$withParams}');
                 var data = {
-                    q: query,
-                    page: tpextApp.{$thisVueFieldName}.page || 1,
+                    q: tpextApp.{$thisVueFieldName}.query,
+                    page: tpextApp.{$thisVueFieldName}.page,
                     prev_val : {$prevText},
                     ele_id : '{$selectId}',
                     prev_ele_id : '{$prev_id}',
@@ -195,19 +215,10 @@ class Select extends \tpext\builder\displayer\Select
                         data[withParams[i]] = tpextApp.{$formVueFieldName}[withParams[i]] ? tpextApp.{$formVueFieldName}[withParams[i]].value : '';
                     }
                 }
-                tpextApp.{$thisVueFieldName}.loading = true;
-               
-                axios({
-                    method: 'get',
-                    url: '{$url}',
-                    params: data,
-                    headers: {
-                        'x-requested-with': 'xmlhttprequest',
-                    },
+                axios.get('{$url}', {
+                    params: data
                 }).then(function (res) {
-                    console.log(res)
                     var data = res.data;
-                    tpextApp.{$thisVueFieldName}.loading = false;
                     var list = data.data ? data.data : data;
                     var options = [];
                     list.forEach(function(d){
@@ -219,16 +230,18 @@ class Select extends \tpext\builder\displayer\Select
                     });
                     if(options.length > 0)
                     {
-                        tpextApp.{$thisVueFieldName}.options = tpextApp.{$thisVueFieldName}.options.concat(options);//扩充选项
-                        tpextApp.{$thisVueFieldName}.page += 1;
+                        options = tpextApp.{$thisVueFieldName}.options.concat(options);//扩充选项
+                        tpextApp.{$thisVueFieldName}.options = options;
                     }
+                    tpextApp.{$thisVueFieldName}.has_more = data.has_more || false;
                 }).catch(function (e) {
                     console.log(e);
-                    tpextApp.{$thisVueFieldName}.loading = false;
                     tpextApp.\$message.error(JSON.stringify(e), 'error');
                 });
-            }
-    
+            },
+            {$thisVueEventName}PageChange(){
+
+            },
 EOT;
             $this->vueMethods($script);
 
@@ -239,13 +252,8 @@ EOT;
     
             if(selected{$key} !== '')
             {
-                axios({
-                    method: 'get',
-                    url: '{$url}',
-                    params: {selected : selected{$key}},
-                    headers: {
-                        'x-requested-with': 'xmlhttprequest',
-                    },
+                axios.get('{$url}', {
+                    params: {selected : selected{$key}}
                 }).then(function (res) {
                     var data = res.data;
                     var list = data.data ? data.data : data;
@@ -262,9 +270,9 @@ EOT;
                     }
                     else
                     {
-                        list.forEach(function(item){
+                        list.forEach(function(d){
                             options.push({
-                                value : item.__id__ || d['{$id}'] || d.id,
+                                value : d.__id__ || d['{$id}'] || d.id,
                                 label: d.__text__ || d['{$text}'] || d.text,
                                 disabled : false
                             });
@@ -290,7 +298,19 @@ EOT;
                     tpextApp.{$thisVueFieldName}.loadtext = '加载中...';
                 }
             }
-    
+
+            var {$key}dropdown__wrap = document.querySelector('.{$selectId}-dropdown .el-select-dropdown__wrap')
+            {$key}dropdown__wrap.addEventListener('scroll', function() {
+                var condition = this.scrollHeight - this.scrollTop <= this.clientHeight
+                if (condition) 
+                {
+                    if(tpextApp.{$thisVueFieldName}.has_more)
+                    {
+                        tpextApp.{$thisVueFieldName}.page += 1;
+                        tpextApp.{$thisVueEventName}load();
+                    }
+                }
+            });
 EOT;
             $this->vueMounted($scriptInit);
         } else {
