@@ -54,7 +54,6 @@ class FRow extends baseFRow
             $data['isDisabled'] = $this->displayer->isDisabled() ? true : false;
             $data['isError'] = $this->displayer->getError() ? true : false;
             $data['label'] = $this->displayer->getLabel();
-            $data['label'] = $this->displayer->getLabel();
 
             $fieldName = $this->displayer->getName();
 

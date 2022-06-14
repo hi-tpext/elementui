@@ -63,26 +63,23 @@ class Module extends baseModule
     private function initMinify()
     {
         MinifyTool::removeJs([
-            '/assets/lightyearadmin/js/jquery.min.js',
-            '/assets/lightyearadmin/js/bootstrap.min.js',
+            // '/assets/lightyearadmin/js/jquery.min.js',
+            //'/assets/lightyearadmin/js/bootstrap.min.js',
             '/assets/lightyearadmin/js/jquery.lyear.loading.js',
             '/assets/lightyearadmin/js/bootstrap-notify.min.js',
             '/assets/lightyearadmin/js/jconfirm/jquery-confirm.min.js',
-            '/assets/lightyearadmin/js/lightyear.js',
-            '/assets/lightyearadmin/js/main.min.js',
-
-            '/assets/tpextbuilder/js/jquery-validate/jquery.validate.min.js',
-            '/assets/tpextbuilder/js/jquery-validate/messages_zh.min.js',
-            '/assets/tpextbuilder/js/layer/layer.js',
-            '/assets/tpextbuilder/js/tpextbuilder.js',
+            // '/assets/lightyearadmin/js/lightyear.js',
+            // '/assets/lightyearadmin/js/main.min.js',
         ]);
 
         MinifyTool::removeCss([
-            '/assets/lightyearadmin/css/bootstrap.min.css',
-            '/assets/lightyearadmin/css/materialdesignicons.min.css',
-            '/assets/lightyearadmin/css/animate.css',
-            '/assets/lightyearadmin/css/style.min.css',
+            // '/assets/lightyearadmin/css/bootstrap.min.css',
+            // '/assets/lightyearadmin/css/materialdesignicons.min.css',
+            // '/assets/lightyearadmin/css/animate.css',
+            // '/assets/lightyearadmin/css/style.min.css',
             '/assets/lightyearadmin/js/jconfirm/jquery-confirm.min.css',
         ]);
+
+        MinifyTool::addJs('/assets/elementui/js/tpextbuilder.js');
     }
 }

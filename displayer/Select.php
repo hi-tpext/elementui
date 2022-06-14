@@ -14,8 +14,6 @@ class Select extends \tpext\builder\displayer\Select
 
     protected $css = [];
 
-    protected $size = [2, 3];
-
     protected $attr = '';
 
     /**
@@ -35,12 +33,19 @@ class Select extends \tpext\builder\displayer\Select
         parent::beforRender();
 
         if (!($this->value === '' || $this->value === null)) {
-            $this->checked = $this->value;
+            $this->checked = '' . $this->value;
         } else {
-            $this->checked = $this->default;
+            $this->checked = '' . $this->default;
         }
 
-        $this->value = $this->checked;
+        $this->checked;
+
+        if (isset($this->jsOptions['ajax']) && $this->checked !== '') {
+            $this->value = '';
+            $this->options = ['' => '加载中...'];
+        } else {
+            $this->value = $this->checked;
+        }
 
         if ($this->disabledOptions && !is_array($this->disabledOptions)) {
             $this->disabledOptions = explode(',', $this->disabledOptions);
@@ -60,7 +65,7 @@ class Select extends \tpext\builder\displayer\Select
         $this->addAttr('size="small"');
         $this->addAttr(':clearable="true"');
         $this->addAttr(':filterable="true"');
-        $this->addStyle('width:100%;max-width:220px;');
+        $this->addStyle('width:100%;');
 
         $this->vueData(['options' => $options]);
         $this->vueData(['checked' => $this->checked]);
@@ -158,11 +163,9 @@ class Select extends \tpext\builder\displayer\Select
             $prevVueFieldName = $this->prevSelect ? $this->prevSelect->getVueFieldName() : '';
             $formVueFieldName = $this->getWrapper()->getForm()->getVueFieldName();
 
-            //$this->addAttr(':remote="true"');
             $this->addAttr(':filter-method="' . $thisVueEventName . 'Filter"');
             $this->addAttr('popper-class="' . $selectId . '-dropdown"');
             $this->addAttr('@focus="' . $thisVueEventName . 'Focus"');
-            $this->addAttr('@visible-change="' . $thisVueEventName . 'VisibleChange"');
             $this->addAttr('autocomplete="off"');
 
             $this->vueData(['page' => 1]);
@@ -182,9 +185,6 @@ class Select extends \tpext\builder\displayer\Select
 
             $script = <<<EOT
 
-            {$thisVueEventName}VisibleChange(isV) {
-
-            },
             {$thisVueEventName}Focus(e) {
                 tpextApp.{$thisVueFieldName}.page = 1;
                 tpextApp.{$thisVueFieldName}.options = [];
@@ -223,8 +223,8 @@ class Select extends \tpext\builder\displayer\Select
                     var options = [];
                     list.forEach(function(d){
                         options.push({
-                            value : d.__id__ || d['{$id}'] || d.id,
-                            label: d.__text__ || d['{$text}'] || d.text,
+                            value : '' + (d.__id__ || d['{$id}'] || d.id),
+                            label: '' + (d.__text__ || d['{$text}'] || d.text),
                             disabled : false
                         });
                     });
@@ -238,9 +238,6 @@ class Select extends \tpext\builder\displayer\Select
                     console.log(e);
                     tpextApp.\$message.error(JSON.stringify(e), 'error');
                 });
-            },
-            {$thisVueEventName}PageChange(){
-
             },
 EOT;
             $this->vueMethods($script);
@@ -272,22 +269,28 @@ EOT;
                     {
                         list.forEach(function(d){
                             options.push({
-                                value : d.__id__ || d['{$id}'] || d.id,
-                                label: d.__text__ || d['{$text}'] || d.text,
+                                value : '' + (d.__id__ || d['{$id}'] || d.id),
+                                label: '' + (d.__text__ || d['{$text}'] || d.text),
                                 disabled : false
                             });
                         });
+                        tpextApp.{$thisVueFieldName}.value = tpextApp.{$thisVueFieldName}.checked;
                         if(options.length > 0)
                         {
                             tpextApp.{$thisVueFieldName}.options = options;//初始化选项
                         }
                     }
+                    
                 }).catch(function (e) {
-                    console.log(e);
                     tpextApp.\$message.error(JSON.stringify(e), 'error');
                     if(readonly{$key})
                     {
                         tpextApp.{$thisVueFieldName}.loadtext = '-加载出错-';
+                    }
+                    else
+                    {
+                        tpextApp.{$thisVueFieldName}.options = [];
+                        tpextApp.{$thisVueFieldName}.value = tpextApp.{$thisVueFieldName}.checked;
                     }
                 });
             }
@@ -296,6 +299,11 @@ EOT;
                 if(readonly{$key})
                 {
                     tpextApp.{$thisVueFieldName}.loadtext = '加载中...';
+                }
+                else
+                {
+                    tpextApp.{$thisVueFieldName}.options = [];
+                    tpextApp.{$thisVueFieldName}.value = tpextApp.{$thisVueFieldName}.checked;
                 }
             }
 

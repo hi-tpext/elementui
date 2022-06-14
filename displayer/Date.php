@@ -36,33 +36,6 @@ class Date extends \tpext\builder\displayer\Date
         return $this;
     }
 
-    public function beforRender()
-    {
-        parent::beforRender();
-
-        $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
-        $this->addAttr('size="small"');
-        $this->addAttr('format="' . $this->format . '"');
-        $this->addAttr('value-format="' . $this->format . '"');
-        $this->addAttr(':firstDayOfWeek="' . $this->jsOptions['firstDayOfWeek'] . '"');
-        $this->addStyle('width:100%;max-width:220px;');
-
-        if (empty($this->jsOptions['type'])) { //未明确指定类型
-
-            if (!preg_match('/d$/i', $this->format)) { //yyyy-MM格式，选择的到月份
-                $this->jsOptions['type'] = 'month';
-            } else {
-                $this->jsOptions['type'] = 'date';
-            }
-        }
-
-        $this->addAttr('type="' . $this->jsOptions['type'] . '"');
-
-        $this->setPickerOptions();
-
-        return $this;
-    }
-
     protected function setPickerOptions()
     {
         if ($this->jsOptions['type'] == 'date') {
@@ -126,6 +99,26 @@ EOT;
 
     protected function dateTimeScript()
     {
+        $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
+        $this->addAttr('size="small"');
+        $this->addAttr('format="' . $this->format . '"');
+        $this->addAttr('value-format="' . $this->format . '"');
+        $this->addAttr(':firstDayOfWeek="' . $this->jsOptions['firstDayOfWeek'] . '"');
+        $this->addStyle('width:100%;max-width:220px;');
+
+        if (empty($this->jsOptions['type'])) { //未明确指定类型
+
+            if (!preg_match('/d$/i', $this->format)) { //yyyy-MM格式，选择的到月份
+                $this->jsOptions['type'] = 'month';
+            } else {
+                $this->jsOptions['type'] = 'date';
+            }
+        }
+
+        $this->addAttr('type="' . $this->jsOptions['type'] . '"');
+
+        $this->setPickerOptions();
+
         return '';
     }
 }

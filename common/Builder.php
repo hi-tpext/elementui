@@ -22,7 +22,7 @@ class Builder extends baseBuilder
         '/assets/tpextbuilder/js/jquery-validate/jquery.validate.min.js',
         '/assets/tpextbuilder/js/jquery-validate/messages_zh.min.js',
         '/assets/tpextbuilder/js/layer/layer.js',
-        '/assets/tpextbuilder/js/tpextbuilder.js',
+        '/assets/elementui/js/tpextbuilder.js',
     ];
 
     protected $commonCss = [
@@ -39,9 +39,9 @@ class Builder extends baseBuilder
      */
     public function created()
     {
-        // parent::created();
+        parent::created();
 
-        // return $this;
+        return $this;
 
         Column::extend(['Column' => Column::class]);
 
@@ -52,7 +52,7 @@ class Builder extends baseBuilder
             'Search' => \elementui\common\Search::class,
             'FRow' => \elementui\form\FRow::class,
             'SRow' => \elementui\search\SRow::class,
-            // 'TColumn' => \elementui\table\TColumn::class,
+            'TColumn' => \elementui\table\TColumn::class,
         ]);
 
         Wrapper::setDefaultFieldClass([
@@ -145,7 +145,6 @@ class Builder extends baseBuilder
     new Vue({
         el: "#app",
         data() {
-            var that = this;
             return {$vueData};   
         },
         mounted() {

@@ -22,10 +22,8 @@ class TimeRange extends \tpext\builder\displayer\TimeRange
 
     protected $befro = '';
 
-    public function beforRender()
+    protected function dateTimeRangeScript()
     {
-        parent::beforRender();
-
         $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
         $this->addAttr('size="small"');
         $this->addAttr('format="' . $this->format . '"');
@@ -33,12 +31,7 @@ class TimeRange extends \tpext\builder\displayer\TimeRange
         $this->addAttr(':is-range="true"');
         $this->addAttr('range-separator="' . $this->separator. '"');
         $this->addStyle('width:100%;max-width:220px;');
-
-        return $this;
-    }
-
-    protected function dateTimeRangeScript()
-    {
+        
         return '';
     }
 }

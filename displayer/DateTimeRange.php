@@ -39,26 +39,6 @@ class DateTimeRange extends \tpext\builder\displayer\DateTimeRange
         return $this;
     }
 
-    public function beforRender()
-    {
-        parent::beforRender();
-
-        $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
-        $this->addAttr('size="small"');
-        $this->addAttr('format="' . $this->format . '"');
-        $this->addAttr('value-format="' . $this->format . '"');
-        $this->addAttr('start-placeholder="' . $this->jsOptions['start_placeholder'] . '"');
-        $this->addAttr('end-placeholder="' . $this->jsOptions['end_placeholder'] . '"');
-        $this->addAttr('type="datetimerange"');
-        $this->addAttr('range-separator="' . $this->separator. '"');
-        $this->addAttr(':firstDayOfWeek="' . $this->jsOptions['firstDayOfWeek'] . '"');
-        $this->addStyle('width:100%;max-width:360px;');
-        
-        $this->setPickerOptions();
-
-        return $this;
-    }
-
     protected function setPickerOptions()
     {
         $today = strtotime(date('Y-m-d')) * 1000;
@@ -127,6 +107,19 @@ class DateTimeRange extends \tpext\builder\displayer\DateTimeRange
 
     protected function dateTimeRangeScript()
     {
+        $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
+        $this->addAttr('size="small"');
+        $this->addAttr('format="' . $this->format . '"');
+        $this->addAttr('value-format="' . $this->format . '"');
+        $this->addAttr('start-placeholder="' . $this->jsOptions['start_placeholder'] . '"');
+        $this->addAttr('end-placeholder="' . $this->jsOptions['end_placeholder'] . '"');
+        $this->addAttr('type="datetimerange"');
+        $this->addAttr('range-separator="' . $this->separator. '"');
+        $this->addAttr(':firstDayOfWeek="' . $this->jsOptions['firstDayOfWeek'] . '"');
+        $this->addStyle('width:100%;max-width:360px;');
+        
+        $this->setPickerOptions();
+        
         return '';
     }
 }

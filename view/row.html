@@ -1,4 +1,4 @@
-<div class="el-row {$class}" :gutter="44" {$attr|raw}>
+<div class="el-row {$class}" {$attr|raw}>
   {volist name="$cols" id="col"}
   <div class="el-col el-col-md-{$col->getSize()} {$col->getClass()}" {$col->getAttrWithStyle()|raw}>
     {volist name="col->getElms()" id="elm"}

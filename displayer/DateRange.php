@@ -40,36 +40,6 @@ class DateRange extends \tpext\builder\displayer\DateRange
         return $this;
     }
 
-    public function beforRender()
-    {
-        parent::beforRender();
-
-        $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
-        $this->addAttr('size="small"');
-        $this->addAttr('format="' . $this->format . '"');
-        $this->addAttr('value-format="' . $this->format . '"');
-        $this->addAttr('start-placeholder="' . $this->jsOptions['start_placeholder'] . '"');
-        $this->addAttr('end-placeholder="' . $this->jsOptions['end_placeholder'] . '"');
-        $this->addAttr('range-separator="' . $this->separator . '"');
-        $this->addAttr(':firstDayOfWeek="' . $this->jsOptions['firstDayOfWeek'] . '"');
-        $this->addStyle('width:100%;max-width:220px;');
-
-        if (empty($this->jsOptions['type'])) { //未明确指定类型
-
-            if (!preg_match('/d$/i', $this->format)) { //yyyy-MM格式，选择的到月份
-                $this->jsOptions['type'] = 'monthrange';
-            } else {
-                $this->jsOptions['type'] = 'daterange';
-            }
-        }
-
-        $this->addAttr('type="' . $this->jsOptions['type'] . '"');
-
-        $this->setPickerOptions();
-
-        return $this;
-    }
-
     protected function setPickerOptions()
     {
         if ($this->jsOptions['type'] == 'daterange') {
@@ -120,7 +90,7 @@ class DateRange extends \tpext\builder\displayer\DateRange
             picker.\$emit('pick', [{$yearStart}, {$yearEnd}]);
         }
     }]
-    }
+}
 EOT;
 
             $this->addAttr(':picker-options="' . $pickerOptions . '"');
@@ -155,7 +125,7 @@ EOT;
             picker.\$emit('pick', [{$yearStart}, {$yearEnd}]);
         }
     }]
-    }
+}
 EOT;
 
             $this->addAttr(':picker-options="' . $pickerOptions . '"');
@@ -164,6 +134,29 @@ EOT;
 
     protected function dateRangeScript()
     {
+        $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
+        $this->addAttr('size="small"');
+        $this->addAttr('format="' . $this->format . '"');
+        $this->addAttr('value-format="' . $this->format . '"');
+        $this->addAttr('start-placeholder="' . $this->jsOptions['start_placeholder'] . '"');
+        $this->addAttr('end-placeholder="' . $this->jsOptions['end_placeholder'] . '"');
+        $this->addAttr('range-separator="' . $this->separator . '"');
+        $this->addAttr(':firstDayOfWeek="' . $this->jsOptions['firstDayOfWeek'] . '"');
+        $this->addStyle('width:100%;max-width:220px;');
+
+        if (empty($this->jsOptions['type'])) { //未明确指定类型
+
+            if (!preg_match('/d$/i', $this->format)) { //yyyy-MM格式，选择的到月份
+                $this->jsOptions['type'] = 'monthrange';
+            } else {
+                $this->jsOptions['type'] = 'daterange';
+            }
+        }
+
+        $this->addAttr('type="' . $this->jsOptions['type'] . '"');
+
+        $this->setPickerOptions();
+
         return '';
     }
 }

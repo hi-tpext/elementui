@@ -5,8 +5,8 @@
 {:$addTop->render()}
 {/notempty}
 <div id="{$id}" class="form-wrapper">
-    <form action="{$action}" method="{$method|default='POST'}" enctype="application/x-www-form-urlencoded" class="{$class}"
-        {$attr|raw}>
+    <form action="{$action}" method="{$method|default='POST'}" enctype="application/x-www-form-urlencoded"
+        class="{$class}" {$attr|raw}>
         {volist name="rows" id="row"}
         <div class="el-form-item--small el-form-item el-col-md-{$row->getColSizeClass()} {$row->getClass()} row-{$row->getName()}-div
             {$row->getErrorClass()}" {$row->getAttrWithStyle()|raw}>
@@ -29,31 +29,44 @@
             searchFor: '{$searchFor}',
             export: 0,
             action: '{$action}',
-            formSubmit: function () {
-                lightyear.loading('hide');
+            formSubmit: function (postdata) {
+                var loading = tpextApp.$loading({
+                    lock: true,
+                    text: '正在查询...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.2)'
+                });
                 var that = this;
                 if (!that.export && that.ajax) {
-                    lightyear.loading('show');
 
-                    var postdata = $('#{$id} form').serialize();
                     var scrollLeft = $('#' + that.searchFor + ' .table-wrapper').scrollLeft();
 
-                    $.ajax({
+                    axios({
+                        method: "GET",
                         url: '{$action}' || location.href,
-                        data: postdata,
-                        type: "{$method|default='POST'}",
-                        dataType: 'html',
-                        success: function (data) {
-                            setTimeout(function () {
-                                lightyear.loading('hide');
-                            }, 500);
-                            $('#' + that.searchFor).replaceWith(data);
-                            $('#' + that.searchFor + ' .table-wrapper').scrollLeft(scrollLeft);
+                        responseType: 'html',
+                        params: postdata,
+                        headers: {
+                            'x-requested-with': 'xmlhttprequest',
                         },
-                        error: function () {
-                            lightyear.loading('hide');
-                            lightyear.notify('网络错误', 'danger');
-                        }
+                    }).then(function (res) {
+                        var data = res.data;
+                        setTimeout(function () {
+                            loading.close();
+                        }, 500);
+                        $('#' + that.searchFor).replaceWith(data);
+                        $('#' + that.searchFor + ' .table-wrapper').scrollLeft(scrollLeft);
+                    }).catch(function (e) {
+                        console.log(e);
+                        setTimeout(function () {
+                            loading.close();
+                        }, 500);
+                        tpextApp.$message({
+                            message: e.msg || e.message || '网络错误',
+                            type: 'error',
+                            center: true,
+                            offset: 200,
+                        });
                     });
 
                     return false;
@@ -85,67 +98,79 @@
                 __ids__.value = values.join(',');
                 form.append(__ids__);
 
-                if(ajax)
-                {
-                    var loading = layer.open({
-                        type: 1,
-                        closeBtn: 0, //不显示关闭按钮
-                        anim: 2,
-                        shadeClose: false, //开启遮罩关闭
-                        content: '<p style="padding:10px 20px;color:green;"><img src="/assets/tpextbuilder/js/layer/theme/default/loading-1.gif">生成数据中...</p>'
+                if (ajax) {
+                    var loading = tpextApp.$loading({
+                        lock: true,
+                        text: '正在提交...',
+                        spinner: 'el-icon-loading',
+                        background: 'rgba(0, 0, 0, 0.2)'
                     });
 
                     var postdata = $('#{$id} form').serialize();
-                    $.ajax({
+                    axios({
+                        method: "get",
                         url: url,
-                        data: postdata,
-                        type: 'GET',
-                        dataType: 'json',
-                        success: function (data) {
-                            layer.close(loading);
-                            if(data.code)
-                            {
-                                if(data.open_url)//数据太多，打开页面，分页处理
-                                {
-                                    layer.open({
-                                        type: 2,
-                                        title: '生成数据中...',
-                                        scrollbar: false,
-                                        area: ['400px','150px'],
-                                        content: url + '?' + postdata
-                                    });
-                                }
-                                else//一次性生成文件，并返回下载链接
-                                {
-                                    var filename = data.data.replace(/.+?([^\/]+)$/, '$1');
-                                    layer.open({
-                                        type: 1,
-                                        title: '文件下载',
-                                        shadeClose: false,
-                                        area: ['400px','150px'],
-                                        content: '<div class="alert alert-success " role="alert" style="widht:94%;margin:2%;"><p>文件已生成，点击下载：</p><a onclick="layer.closeAll();" target="_blank" href="' + data.data + '">' + filename + '</a></div>',
-                                    });
-                                }
-                            }
-                            else
-                            {
-                                layer.alert('错误-' + data.msg);
-                            }
+                        responseType: 'json',
+                        params: postdata,
+                        headers: {
+                            'x-requested-with': 'xmlhttprequest',
                         },
-                        error:function(){
-                            layer.close(loading);
-                            lightyear.notify('网络错误', 'danger');
+                    }).then(function (res) {
+                        loading.close();
+                        var data = res.data;
+                        if (data.code) {
+                            if (data.open_url)//数据太多，打开页面，分页处理
+                            {
+                                layer.open({
+                                    type: 2,
+                                    title: '生成数据中...',
+                                    scrollbar: false,
+                                    area: ['400px', '150px'],
+                                    content: url + '?' + postdata
+                                });
+                            }
+                            else//一次性生成文件，并返回下载链接
+                            {
+                                var filename = data.data.replace(/.+?([^\/]+)$/, '$1');
+
+                                tpextApp.$alert('<div class="alert alert-success " role="alert" style="widht:94%;margin:2%;"><p>文件已生成，点击下载：</p><a onclick="layer.closeAll();" target="_blank" href="' + data.data + '">' + filename + '</a></div>', '文件下载', {
+                                    dangerouslyUseHTMLString: true
+                                });
+                            }
                         }
+                        else {
+                            tpextApp.$message({
+                                message: data.msg || data.message || '网络错误',
+                                type: 'error',
+                                center: true,
+                                offset: 200,
+                            });
+                        }
+                    }).catch(function (e) {
+                        console.log(e);
+                        setTimeout(function () {
+                            loading.close();
+                        }, 500);
+                        tpextApp.$message({
+                            message: e.msg || e.message || '网络错误',
+                            type: 'error',
+                            center: true,
+                            offset: 200,
+                        });
                     });
                 }
-                else
-                {
-                    lightyear.loading('show');
+                else {
+                    var loading = tpextApp.$loading({
+                        lock: true,
+                        text: '生成数据中...',
+                        spinner: 'el-icon-loading',
+                        background: 'rgba(0, 0, 0, 0.2)'
+                    });
                     form.attr('action', url);
                     form.trigger('submit');
                     form.attr('action', this.action);
                     setTimeout(function () {
-                        lightyear.loading('hide');
+                        loading.close();
                     }, 2000);
                 }
 

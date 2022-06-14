@@ -20,21 +20,14 @@ class Time extends \tpext\builder\displayer\Time
 
     protected $befro = '';
 
-    public function beforRender()
+    protected function dateTimeScript()
     {
-        parent::beforRender();
-
         $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
         $this->addAttr('size="small"');
         $this->addAttr('format="' . $this->format . '"');
         $this->addAttr('value-format="' . $this->format . '"');
         $this->addStyle('width:100%;max-width:220px;');
         
-        return $this;
-    }
-
-    protected function dateTimeScript()
-    {
         return '';
     }
 }

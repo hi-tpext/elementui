@@ -31,10 +31,8 @@ class Year extends \tpext\builder\displayer\Year
         return $this;
     }
 
-    public function beforRender()
+    protected function dateTimeScript()
     {
-        parent::beforRender();
-
         $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
         $this->addAttr('size="small"');
         $this->addAttr('format="' . $this->format . '"');
@@ -42,11 +40,6 @@ class Year extends \tpext\builder\displayer\Year
         $this->addAttr('type="year"');
         $this->addStyle('width:100%;max-width:220px;');
 
-        return $this;
-    }
-
-    protected function dateTimeScript()
-    {
         return '';
     }
 }

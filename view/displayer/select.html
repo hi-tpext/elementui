@@ -1,8 +1,7 @@
 {include file="$labeltempl" /}
 <div class="el-form-item__content el-col-md-{$size[1]}">
     <div v-if="{$vueFieldName}.loadtext" class="loadtext">{{{$vueFieldName}.loadtext}}</div>
-    <el-select v-else placeholder="{$placeholder|default='请选择'.$label}" class="{$class}" id="{$id}"
-        {$attr|raw}>
+    <el-select v-else placeholder="{$placeholder|default='请选择'.$label}" class="{$class}" id="{$id}" {$attr|raw}>
         {if condition="$group"}
         <el-option-group v-for="(group,index) in {$vueFieldName}.options" :key="index" :label="group.label">
             <el-option v-for="item in group.options" :disabled="item.disabled" :key="item.value" :label="item.label"
@@ -15,6 +14,10 @@
         </el-option>
         {/if}
     </el-select>
-    <input type="hidden" name="{$name}" :value="{$vueFieldName}.value" />
+    <div style="display: none;">
+        <select name="{$name}">
+            <option :value="{$vueFieldName}.value" selected="selected">selected</option>
+        </select>
+    </div>
     {include file="$helptempl" /}
 </div>

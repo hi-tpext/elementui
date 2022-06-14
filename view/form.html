@@ -1,5 +1,5 @@
 <div id="{$id}" class="form-wrapper">
-    <form id="{$id}" action="{$action}" method="{$method|default='POST'}" enctype="application/x-www-form-urlencoded"
+    <form action="{$action}" method="{$method|default='POST'}" enctype="application/x-www-form-urlencoded"
         class="{$class}" {$attr|raw}>
 
         {volist name="rows" id="row"}
@@ -120,6 +120,9 @@
                         }
                     }).catch(function (e) {
                         console.log(e);
+                        setTimeout(function () {
+                            loading.close();
+                        }, 500);
                         tpextApp.$message({
                             message: e.msg || e.message || '网络错误',
                             type: 'error',
@@ -130,6 +133,8 @@
 
                     return false;
                 }
+
+                document.querySelector('#{$id} form').submit();
 
                 setTimeout(function () {
                     loading.close();

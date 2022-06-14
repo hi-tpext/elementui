@@ -44,7 +44,20 @@ class Form extends baseForm
         }
     }
 
-    protected function eventScript()
+    /**
+     * Undocumented function
+     *
+     * @return array
+     */
+    public function customVars()
+    {
+        return [
+            'vueFieldName' => $this->getVueFieldName(),
+            'vueEventName' => $this->getVueEventName(),
+        ];
+    }
+
+    protected function validatorScript()
     {
         $vueEventName = $this->getVueEventName();
         $vueFieldName = $this->getVueFieldName();
@@ -56,18 +69,18 @@ class Form extends baseForm
         {$vueEventName}Submit() {
             var data = {};
             var errors = [];
-            for(var k in this.{$vueFieldName})
+            for(var k in tpextApp.{$vueFieldName})
             {
-                var field = this.{$vueFieldName}[k];
+                var field = tpextApp.{$vueFieldName}[k];
 
                 if(field.isRequired && (field.value === '' || field.value === null || field.value === undefined))
                 {
                     errors.push(field.label + '是必填字段');
-                    this.{$vueFieldName}[k].isError = true;
+                    tpextApp.{$vueFieldName}[k].isError = true;
                 }
                 else
                 {
-                    this.{$vueFieldName}[k].isError = false;
+                    tpextApp.{$vueFieldName}[k].isError = false;
                 }
 
                 if(field.isInput)
@@ -90,7 +103,7 @@ class Form extends baseForm
 
             if(errors.length)
             {
-                this.\$message({
+                tpextApp.\$message({
                     message: errors[0],
                     type: 'error',
                     center: true,
@@ -103,22 +116,14 @@ class Form extends baseForm
             return window.__forms__['{$form}'].formSubmit(data);
         },
         {$vueEventName}Reset() {
-            for(var k in this.{$vueFieldName})
+            for(var k in tpextApp.{$vueFieldName})
             {
-                this.{$vueFieldName}[k].value = this.{$vueFieldName}[k].origin_value;
+                tpextApp.{$vueFieldName}[k].value = tpextApp.{$vueFieldName}[k].origin_value;
             }
         }
 
 EOT;
         $this->vueMethods($script);
-        return $this;
-    }
-
-    protected function validatorScript()
-    {
-        $form = $this->getFormId();
-
-        $rules = json_encode($this->validator);
 
         $script = <<<EOT
 
@@ -157,7 +162,7 @@ EOT;
         $vueEventName = $this->getVueEventName();
 
         $this->bottomOffset();
-        $this->button('submit', $label, $size)->addAttr('@click="' . $vueEventName . 'Submit"')->class($class . ' ' . $this->butonsSizeClass);
+        $this->button('button', $label, $size)->class($class . ' ' . $this->butonsSizeClass)->addAttr('@click="' . $vueEventName . 'Submit"');
         $this->botttomButtonsCalled = true;
         return $this;
     }
@@ -175,7 +180,7 @@ EOT;
         $vueEventName = $this->getVueEventName();
 
         $this->bottomOffset();
-        $this->button('reset', $label, $size)->addAttr('@click="' . $vueEventName . 'Reset"')->class($class . ' ' . $this->butonsSizeClass);
+        $this->button('button', $label, $size)->class($class . ' ' . $this->butonsSizeClass)->addAttr('@click="' . $vueEventName . 'Reset"');
         $this->botttomButtonsCalled = true;
         return $this;
     }
@@ -185,8 +190,6 @@ EOT;
         parent::beforRender();
 
         $this->applyVue($this->getFormId());
-
-        $this->eventScript();
 
         return $this;
     }

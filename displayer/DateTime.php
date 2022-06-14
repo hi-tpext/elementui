@@ -35,23 +35,6 @@ class DateTime extends \tpext\builder\displayer\DateTime
         return $this;
     }
 
-    public function beforRender()
-    {
-        parent::beforRender();
-
-        $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
-        $this->addAttr('size="small"');
-        $this->addAttr('format="' . $this->format . '"');
-        $this->addAttr('value-format="' . $this->format . '"');
-        $this->addAttr('type="datetime"');
-        $this->addAttr(':firstDayOfWeek="' . $this->jsOptions['firstDayOfWeek'] . '"');
-        $this->addStyle('width:100%;max-width:220px;');
-
-        $this->setPickerOptions();
-
-        return $this;
-    }
-
     protected function setPickerOptions()
     {
         $pickerOptions = <<<EOT
@@ -112,6 +95,16 @@ class DateTime extends \tpext\builder\displayer\DateTime
 
     protected function dateTimeScript()
     {
+        $this->addAttr('v-model="' . $this->getVueFieldName() . '.value"');
+        $this->addAttr('size="small"');
+        $this->addAttr('format="' . $this->format . '"');
+        $this->addAttr('value-format="' . $this->format . '"');
+        $this->addAttr('type="datetime"');
+        $this->addAttr(':firstDayOfWeek="' . $this->jsOptions['firstDayOfWeek'] . '"');
+        $this->addStyle('width:100%;max-width:220px;');
+
+        $this->setPickerOptions();
+
         return '';
     }
 }

@@ -1,20 +1,23 @@
 {include file="$labeltempl" /}
-<div class="el-form-item__content el-col-md-{$size[1]} clearfix">
-    <select class="form-control {$class}" name="{$name}[]" id="{$id}"
-        multiple="multiple" data-selected="{$dataSelected}" {$attr|raw}>
+<div class="el-form-item__content el-col-md-{$size[1]}">
+    <div v-if="{$vueFieldName}.loadtext" class="loadtext">{{{$vueFieldName}.loadtext}}</div>
+    <el-select v-else placeholder="{$placeholder|default='请选择'.$label}" class="{$class}" id="{$id}" {$attr|raw}>
         {if condition="$group"}
-            {volist name="options" id="group"}
-            <optgroup label="{$group.label}">
-                {volist name="group.options" id="option"}
-                <option value="{$key}" {in name="'-'.$key" value="$checked" }selected{/in}>{$option}</option>
-                {/volist}
-            </optgroup>
-            {/volist}
+        <el-option-group v-for="(group,index) in {$vueFieldName}.options" :key="index" :label="group.label">
+            <el-option v-for="item in group.options" :disabled="item.disabled" :key="item.value" :label="item.label"
+                :value="item.value">
+            </el-option>
+        </el-option-group>
         {else/}
-            {volist name="options" id="option"}
-            <option value="{$key}" {in name="'-'.$key" value="$checked" }selected{/in}>{$option}</option>
-            {/volist}
+        <el-option v-for="item in {$vueFieldName}.options" :disabled="item.disabled" :key="item.value"
+            :label="item.label" :value="item.value">
+        </el-option>
         {/if}
-    </select>
+    </el-select>
+    <div style="display: none;">
+        <select multiple="multiple" name="{$name}[]">
+            <option v-for="val in {$vueFieldName}.value" :key="val" :value="val" selected="selected">selected</option>
+        </select>
+    </div>
     {include file="$helptempl" /}
 </div>

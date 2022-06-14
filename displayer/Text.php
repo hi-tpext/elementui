@@ -14,6 +14,30 @@ class Text extends \tpext\builder\displayer\Text
 
     protected $css = [];
 
+    /**
+     * Undocumented function
+     *
+     * @param string $text
+     * @return $this
+     */
+    public function beforSymbol($text)
+    {
+        $this->befor = $text;
+        return $this;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $html
+     * @return $this
+     */
+    public function afterSymbol($text)
+    {
+        $this->after = $text;
+        return $this;
+    }
+
     public function beforRender()
     {
         parent::beforRender();

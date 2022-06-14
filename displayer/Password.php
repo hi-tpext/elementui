@@ -14,6 +14,30 @@ class Password extends \tpext\builder\displayer\Password
 
     protected $css = [];
 
+    /**
+     * Undocumented function
+     *
+     * @param string $text
+     * @return $this
+     */
+    public function beforSymbol($text)
+    {
+        $this->befor = $text;
+        return $this;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $html
+     * @return $this
+     */
+    public function afterSymbol($text)
+    {
+        $this->after = $text;
+        return $this;
+    }
+
     public function beforRender()
     {
         parent::beforRender();
@@ -22,7 +46,6 @@ class Password extends \tpext\builder\displayer\Password
         $this->addAttr('size="small"');
         $this->addAttr(':clearable="true"');
         $this->addAttr(':show-password="true"');
-        $this->addStyle('width:100%;max-width:360px;');
 
         if ($this->maxlength > 0) {
             $this->addAttr('show-word-limit="true"');

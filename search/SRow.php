@@ -38,10 +38,12 @@ class SRow extends baseSRow
 
         if ($this->displayer->isInput()) {
 
+            $this->addAttr(':class="{\'is-error\' : ' . $this->getVueFieldName() . '.isError}"');
+
             $data = $this->displayer->getVueData();
             $data['value'] = $this->displayer->renderValue();
-            $data['origin_value'] = $this->displayer->renderValue();
             $data['isInput'] = $this->displayer->isInput();
+            $data['isError'] = $this->displayer->getError() ? true : false;
 
             $fieldName = $this->displayer->getName();
 

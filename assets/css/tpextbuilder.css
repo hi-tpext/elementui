@@ -29,11 +29,22 @@
     margin-bottom: 0;
 }
 
-form .el-form-item .form-control {
-    width: 100%;
+.el-row {
+    padding-left: 12px;
+    padding-right: 12px;
 }
 
-.el-row {
-    padding-left: 14px;
-    padding-right: 14px;
+a.el-button {
+    text-decoration: none;
+}
+
+.el-form .el-form-item--mini.el-form-item,
+.el-form .el-form-item--small.el-form-item {
+    margin-bottom: 12px
+}
+
+.el-form.search-form .el-form-item--mini.el-form-item,
+.el-form.search-form .el-form-item--small.el-form-item {
+
+    margin-bottom: 3px
 }
